@@ -47,8 +47,8 @@ public class SimpleAutonomous extends LinearOpMode {
             stopRobot();
             sleep(200);
 
-            shooter.setPower(0.8);
-
+            shooter.setPower(0.6);
+            
             sleep(3000);
 
             for (int i = 1; i <= 3; i++) {
