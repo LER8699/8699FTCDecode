@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
@@ -9,8 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 public class SimpleAutonomous extends LinearOpMode {
 
     private DcMotor leftFront, rightFront, leftBack, rightBack;
-    private DcMotorEx shooter;
-    private DcMotor agitator;
+    private DcMotor shooter, agitator;
 
     @Override
     public void runOpMode() {
@@ -19,7 +17,7 @@ public class SimpleAutonomous extends LinearOpMode {
         leftBack = hardwareMap.get(DcMotor.class, "LB");
         rightBack = hardwareMap.get(DcMotor.class, "RB");
 
-        shooter = hardwareMap.get(DcMotorEx.class, "shooter");
+        shooter = hardwareMap.get(DcMotor.class, "shooter");
         agitator = hardwareMap.get(DcMotor.class, "agitator");
 
         leftFront.setDirection(DcMotor.Direction.REVERSE);
@@ -30,12 +28,8 @@ public class SimpleAutonomous extends LinearOpMode {
         shooter.setDirection(DcMotor.Direction.REVERSE);
         agitator.setDirection(DcMotor.Direction.REVERSE);
 
-        telemetry.log().setCapacity(25);
         telemetry.addData("Status", "Initialized");
         telemetry.update();
-        
-        shooter.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         waitForStart();
 
@@ -47,28 +41,23 @@ public class SimpleAutonomous extends LinearOpMode {
             stopRobot();
             sleep(200);
 
-            drive(0, 0, -0.8);
+            drive(0, 0.5, 0);
             sleep(800);
 
             stopRobot();
-            sleep(200);
+            sleep(4000);
 
-            shooter.setVelocity(2000);
-            
+            shooter.setPower(0.8);
+
             for (int i = 1; i <= 3; i++) {
-                long recoveryStart = System.currentTimeMillis();
-                while (opModeIsActive() && System.currentTimeMillis() - recoveryStart < 1500) {
-                    printShooterStats(i);
-                }
-
                 telemetry.addData("Action", "Firing Ball " + i);
                 telemetry.update();
-                
+
                 agitator.setPower(0.5);
-                sleep(800); 
+                sleep(800);
                 agitator.setPower(0);
             }
-            
+
             stopRobot();
             shooter.setPower(0);
             agitator.setPower(0);
@@ -82,18 +71,6 @@ public class SimpleAutonomous extends LinearOpMode {
         rightBack.setPower(y + x - rx);
     }
     
-    private void printShooterStats(int ballNum) {
-        String stats = String.format("Ball %d | Vel: %.0f | Pwr: %.2f", 
-                                      ballNum, 
-                                      shooter.getVelocity(), 
-                                      shooter.getPower());
-        
-        telemetry.log().add(stats);
-        
-        telemetry.addData("CURRENT Ball", ballNum);
-        telemetry.addData("CURRENT Velocity", shooter.getVelocity());
-        telemetry.update();
-    }
 
     public void stopRobot() {
         drive(0, 0, 0);
