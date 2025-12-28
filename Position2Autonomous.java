@@ -4,8 +4,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-@Autonomous(name = "AutoDriveAndShoot")
-public class SimpleAutonomous extends LinearOpMode {
+@Autonomous(name = "Pos2Auto")
+public class Position2Autonomous extends LinearOpMode {
 
     private DcMotor leftFront, rightFront, leftBack, rightBack;
     private DcMotor shooter, agitator;
@@ -35,15 +35,15 @@ public class SimpleAutonomous extends LinearOpMode {
 
         if (opModeIsActive()) {
 
-            shooter.setPower(0.8);
+            shooter.setPower(0.75); 
             
-            drive(0, -0.5, 0);
+            drive(-0.4, 0, 0);
             sleep(3000);
 
             stopRobot();
             sleep(1000);
 
-            sleep(2000);
+            sleep(3000);
 
             for (int i = 1; i <= 3; i++) {
                 telemetry.addData("Action", "Firing Ball " + i);
@@ -52,11 +52,20 @@ public class SimpleAutonomous extends LinearOpMode {
                 agitator.setPower(0.5);
                 sleep(800);
                 agitator.setPower(0);
+                sleep(3250);
+                
             }
-
-            stopRobot();
+            
+            sleep(500);
+            
+            drive(0, 0.75, 0);
+            
+            sleep(800);
+            
             shooter.setPower(0);
             agitator.setPower(0);
+            
+            stopRobot();
         }
     }
 
