@@ -34,14 +34,7 @@ public class SimpleAutonomous extends LinearOpMode {
         waitForStart();
 
         if (opModeIsActive()) {
-
-            drive(0, 0, 1);
-            sleep(5000);
-
-            stopRobot();
-            sleep(200);
-
-            drive(0, 0.5, 0);
+            drive(0, -0.5, 0);
             sleep(800);
 
             stopRobot();
