@@ -49,6 +49,8 @@ public class SimpleAutonomous extends LinearOpMode {
 
             shooter.setPower(0.8);
 
+            sleep(3000);
+
             for (int i = 1; i <= 3; i++) {
                 telemetry.addData("Action", "Firing Ball " + i);
                 telemetry.update();
