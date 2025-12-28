@@ -35,7 +35,46 @@ public class Position3SimpleAutonomous extends LinearOpMode {
 
         if (opModeIsActive()) {
 
-            drive(0.0, -0.5, 0));
+            drive(0.0, -0.5, 0);
+            sleep(1000);
+
+            stopRobot();
+            sleep(200);
+
+            drive(0, 0, -0.1);
+            sleep(800);
+
+            stopRobot();
+            sleep(200);
+
+            shooter.setPower(0.8);
+
+            for (int i = 1; i <= 3; i++) {
+                telemetry.addData("Action", "Firing Ball " + i);
+                telemetry.update();
+
+                agitator.setPower(0.5);
+                sleep(800);
+                agitator.setPower(0);
+            }
+
+            stopRobot();
+            shooter.setPower(0);
+            agitator.setPower(0);
+        }
+    }
+
+    public void drive(double y, double x, double rx) {
+        leftFront.setPower(y + x + rx);
+        leftBack.setPower(y - x + rx);
+        rightFront.setPower(y - x - rx);
+        rightBack.setPower(y + x - rx);
+    }
+
+    public void stopRobot() {
+        drive(0, 0, 0);
+    }
+}
             sleep(1000);
 
             stopRobot();
