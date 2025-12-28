@@ -35,8 +35,8 @@ public class SimpleAutonomous extends LinearOpMode {
 
         if (opModeIsActive()) {
 
-            drive(0.5, 0.5, 0);
-            sleep(1000);
+            drive(0, 0, 1);
+            sleep(2000);
 
             stopRobot();
             sleep(200);
@@ -45,9 +45,11 @@ public class SimpleAutonomous extends LinearOpMode {
             sleep(800);
 
             stopRobot();
-            sleep(4000);
+            sleep(200);
 
             shooter.setPower(0.8);
+
+            sleep(3000);
 
             for (int i = 1; i <= 3; i++) {
                 telemetry.addData("Action", "Firing Ball " + i);
@@ -70,7 +72,6 @@ public class SimpleAutonomous extends LinearOpMode {
         rightFront.setPower(y - x - rx);
         rightBack.setPower(y + x - rx);
     }
-    
 
     public void stopRobot() {
         drive(0, 0, 0);
