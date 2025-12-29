@@ -35,19 +35,19 @@ public class SimpleAutonomous extends LinearOpMode {
 
         if (opModeIsActive()) {
 
-            drive(0.5, 0.5, 0);
+            drive(0.5, 0.65, 0);
             sleep(1000);
 
             stopRobot();
             sleep(200);
 
-            drive(0, 0, -0.8);
+            drive(0, 0, -0.725);
             sleep(800);
 
             stopRobot();
             sleep(200);
 
-            shooter.setPower(0.6);
+            shooter.setPower(0.7);
             
             sleep(3000);
 
@@ -58,11 +58,20 @@ public class SimpleAutonomous extends LinearOpMode {
                 agitator.setPower(0.5);
                 sleep(800);
                 agitator.setPower(0);
+                sleep(3250);
+                
             }
-
-            stopRobot();
+            
+            sleep(500);
+            
+            drive(0, 1, 0);
+            
+            sleep(500);
+            
             shooter.setPower(0);
             agitator.setPower(0);
+            
+            stopRobot();
         }
     }
 
