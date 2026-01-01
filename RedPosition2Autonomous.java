@@ -9,7 +9,7 @@ public class RedPosition2Autonomous extends LinearOpMode {
 
     private DcMotor leftFront, rightFront, leftBack, rightBack;
     private DcMotor shooter, agitator;
-
+    
     @Override
     public void runOpMode() {
         leftFront = hardwareMap.get(DcMotor.class, "LF");
@@ -35,14 +35,19 @@ public class RedPosition2Autonomous extends LinearOpMode {
 
         if (opModeIsActive()) {
 
-            shooter.setPower(0.75); 
+            shooter.setPower(0.65); 
             
-            drive(-0.4, 0, 0);
+            drive(-0.38, 0, 0);
             sleep(3000);
 
             stopRobot();
             sleep(1000);
+            
+            drive(0, 0, -0.5);
+            sleep(85);
 
+            stopRobot();
+            
             sleep(3000);
 
             for (int i = 1; i <= 3; i++) {
@@ -52,13 +57,13 @@ public class RedPosition2Autonomous extends LinearOpMode {
                 agitator.setPower(0.5);
                 sleep(800);
                 agitator.setPower(0);
-                sleep(3250);
+                sleep(4000);
                 
             }
             
             sleep(500);
             
-            drive(0, 0.75, 0);
+            drive(0,0.65, 0);
             
             sleep(800);
             
