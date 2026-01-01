@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-@Autonomous(name = "RedPos2Auto")
+@Autonomous(name = "RedPos1Auto")
 public class RedPosition1Autonomous extends LinearOpMode {
 
     private DcMotor leftFront, rightFront, leftBack, rightBack;
@@ -47,9 +47,9 @@ public class RedPosition1Autonomous extends LinearOpMode {
             stopRobot();
             sleep(200);
 
-            shooter.setPower(0.7);
+            shooter.setPower(0.65);
             
-            sleep(3000);
+            sleep(4000);
 
             for (int i = 1; i <= 3; i++) {
                 telemetry.addData("Action", "Firing Ball " + i);
@@ -64,9 +64,9 @@ public class RedPosition1Autonomous extends LinearOpMode {
             
             sleep(500);
             
-            drive(0, 1, 0);
+            drive(0, 0.75, 0);
             
-            sleep(500);
+            sleep(1000);
             
             shooter.setPower(0);
             agitator.setPower(0);
