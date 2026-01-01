@@ -4,8 +4,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-@Autonomous(name = "Pos3Auto")
-public class Position3Autonomou extends LinearOpMode {
+@Autonomous(name = "RedPos3Auto")
+public class RedPosition3Autonomous extends LinearOpMode {
 
     private DcMotor leftFront, rightFront, leftBack, rightBack;
     private DcMotor shooter, agitator;
