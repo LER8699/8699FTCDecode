@@ -35,10 +35,10 @@ public class BluePosition2Autonomous extends LinearOpMode {
 
         if (opModeIsActive()) {
 
-            shooter.setPower(0.65); 
+            shooter.setPower(0.625); 
             
-            drive(-0.38, 0, 0);
-            sleep(3000);
+            drive(-0.37, 0, 0);
+            sleep(3175);
 
             stopRobot();
             sleep(1000);
@@ -50,15 +50,14 @@ public class BluePosition2Autonomous extends LinearOpMode {
             
             sleep(3000);
 
-            for (int i = 1; i <= 3; i++) {
+            for (int i = 1; i <=3; i++) {
                 telemetry.addData("Action", "Firing Ball " + i);
                 telemetry.update();
 
                 agitator.setPower(0.5);
-                sleep(800);
+                sleep(900);
                 agitator.setPower(0);
                 sleep(4000);
-                
             }
             
             sleep(500);
