@@ -95,6 +95,7 @@ public class DriveAndShooter extends LinearOpMode {
 
             // Hold B to agitate
             if (gamepad2.b) {
+                agitator.setDirection(DcMotor.Direction.FORWARD);
                 agitator.setPower(0.5);
             } else {
                 agitator.setPower(0);
