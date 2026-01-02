@@ -35,7 +35,7 @@ public class RedPosition2Autonomous extends LinearOpMode {
 
         if (opModeIsActive()) {
 
-            shooter.setPower(0.65); 
+            shooter.setPower(0.625); 
             
             drive(-0.38, 0, 0);
             sleep(3000);
@@ -55,7 +55,7 @@ public class RedPosition2Autonomous extends LinearOpMode {
                 telemetry.update();
 
                 agitator.setPower(0.5);
-                sleep(800);
+                sleep(900);
                 agitator.setPower(0);
                 sleep(4000);
                 
