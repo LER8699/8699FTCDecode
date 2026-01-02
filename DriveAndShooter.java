@@ -94,7 +94,7 @@ public class DriveAndShooter extends LinearOpMode {
             }
 
             // Hold B to agitate and hold b and left trigger to reverse
-            if (gamepad2.b) {
+            if (gamepad2.b && !gamepad2.left_trigger) {
                 agitator.setDirection(DcMotor.Direction.REVERSE);
                 agitator.setPower(0.5);
             } else if (gamepad2.b && gamepad2.left_trigger) {
