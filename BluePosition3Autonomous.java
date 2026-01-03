@@ -47,7 +47,7 @@ public class BluePosition3Autonomous extends LinearOpMode {
             stopRobot();
             sleep(200);
 
-            shooter.setPower(0.9);
+            shooter.setPower(0.8);
 
             sleep(3000);
 
