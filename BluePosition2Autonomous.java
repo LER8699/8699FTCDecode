@@ -35,7 +35,7 @@ public class BluePosition2Autonomous extends LinearOpMode {
 
         if (opModeIsActive()) {
 
-            shooter.setPower(0.625); 
+            shooter.setPower(0.55); 
             
             drive(-0.38, 0, 0);
             sleep(3000);
