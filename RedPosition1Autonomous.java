@@ -47,7 +47,7 @@ public class RedPosition1Autonomous extends LinearOpMode {
             stopRobot();
             sleep(200);
 
-            shooter.setPower(0.65);
+            shooter.setPower(0.6);
             
             sleep(4000);
 
