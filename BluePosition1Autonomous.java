@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-@Autonomous(name = "BluePos2Auto")
+@Autonomous(name = "BluePos1Auto")
 public class BluePosition1Autonomous extends LinearOpMode {
 
     private DcMotor leftFront, rightFront, leftBack, rightBack;
