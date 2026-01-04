@@ -35,19 +35,19 @@ public class RedPosition3Autonomous extends LinearOpMode {
 
         if (opModeIsActive()) {
 
-            drive(.07, -.3, 0);
+            drive(.07, -.35, 0);
             sleep(1000);
 
             stopRobot();
             sleep(200);
 
-            drive(0, 0, 0.17);
+            drive(0, 0, 0.155);
             sleep(800);
 
             stopRobot();
             sleep(200);
 
-            shooter.setPower(0.8);
+            shooter.setPower(0.75);
 
             sleep(3000);
 
@@ -64,7 +64,7 @@ public class RedPosition3Autonomous extends LinearOpMode {
             stopRobot();
             shooter.setPower(0);
             agitator.setPower(0);
-            drive(.3, 0, 0);
+            drive(.4, 0, 0);
             sleep(1000);
             
             
