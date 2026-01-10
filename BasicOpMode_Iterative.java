@@ -79,7 +79,7 @@ public class BasicOpMode_Iterative extends OpMode
         // get latest limelight result, pipeline 8 for April tag 0
         LLResult llResult = limelight3A.getLatestResult();
         if (llResult != null && llResult.isValid()) {
-            Pose3D botpose = llResult.getBot pose_MT2();
+            Pose3D botpose = llResult.getBotpose_MT2();
             telemetry.addData("Calculated Distance", distance);
             telemetry.addData("Target X", llResult.getTx());
             telemetry.addData("Target Area", llResult.getTa());
