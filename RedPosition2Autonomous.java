@@ -54,7 +54,7 @@ public class RedPosition2Autonomous extends LinearOpMode {
 
             // 2. Drive to position
             drive(-0.38, 0, 0);
-            sleep(3000);
+            sleep(1750);
             stopRobot();
             sleep(1000);
 
