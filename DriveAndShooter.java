@@ -112,7 +112,7 @@ public class DriveAndShooter extends LinearOpMode {
                 shooter.setVelocity(0.0);
             }
             
-            double velocityTolerance = 100.0; 
+            double velocityTolerance = 600.0; 
             boolean isAtSpeed = Math.abs(shooter.getVelocity() - targetVelocity) < velocityTolerance;
 
             // --- 5. Agitator Logic (GP2 B) ---
