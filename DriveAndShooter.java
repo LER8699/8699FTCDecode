@@ -112,26 +112,18 @@ public class DriveAndShooter extends LinearOpMode {
                 shooter.setVelocity(0.0);
             }
             
-            double velocityTolerance = 600.0; 
+            double velocityTolerance = 1000.0; 
             boolean isAtSpeed = Math.abs(shooter.getVelocity() - targetVelocity) < velocityTolerance;
 
             // --- 5. Agitator Logic (GP2 B) ---
-            if (gamepad2.b && shooterOn) {
-                if (isAtSpeed) {
-                    // Shooter is ready: Spin agitator
-                    agitator.setDirection(gamepad2.left_bumper ? DcMotor.Direction.FORWARD : DcMotor.Direction.REVERSE);
-                    agitator.setVelocity(344.7);
-                } else {
-                    // Shooter NOT ready: Stop agitator and Rumble
-                    agitator.setVelocity(0);
-                    
-                    // Only trigger rumble if the controller isn't already rumbling
-                    if (!gamepad2.isRumbling()) {
-                        gamepad2.rumble(0.5, 0.5, 200); // 200ms burst
-                    }
-                }
+            if (gamepad2.b && isAtSpeed && shooterOn) {
+                // Left bumper on GP2 reverses agitator if it gets stuck
+                agitator.setDirection(gamepad2.left_bumper ? DcMotor.Direction.FORWARD : DcMotor.Direction.REVERSE);
+                agitator.setVelocity(344.7);
+            } else if (gamepad2.b && !isAtSpeed) {
+                agitator.setVelocity(0);
+                gamepad2.rumble(0.35, 0.35, 100);
             } else {
-                // Button not pressed or shooter off
                 agitator.setVelocity(0);
             }
 
