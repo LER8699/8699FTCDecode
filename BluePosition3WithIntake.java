@@ -47,63 +47,80 @@ public class BluePosition3Autonomous extends LinearOpMode {
         waitForStart();
 
         if (opModeIsActive()) {
-
+            
+            //Drive slightly right and forward
             drive(.07, .35, 0);
             sleep(1000);
 
             stopRobot();
             sleep(200);
-
+            
+            //Turn to face depot
             drive(0, 0, -0.155);
             sleep(800);
 
             stopRobot();
             sleep(200);
             
-            drive(0.15, 0.0, -0.05);
-            sleep(750);
+            //Go forward to account for new gate and turn more
+            drive(0.2, 0.0, -0.025);
+            sleep(850);
             stopRobot();
 
             shooter.setVelocity(SHOOTER_TARGET);
 
             sleep(3000);
-
+            
+            //Shoot
             for (int i = 1; i <= 3; i++) {
                 shoot(i);
             }
 
             sleep(300);
+            
 
             agitator.setVelocity(0);
             stopRobot();
-
+            
+            //Rotate to face stright at the loading zone
             drive(0, 0, -0.45);
             sleep(800);
 
             stopRobot();
 
             shooter.setVelocity(0);
-            
-            sleep(500);
-            drive(0, -0.4, 0);
-            sleep(750);
 
-            drive(.45, 0, 0);
-            sleep(1500);
+            //Drive towards loading zone
+            sleep(300);
+            drive(.55, 0, 0);
+            sleep(500);
+            
+            //Start intake
+            intake.setPower(1);
+            
+            sleep(1300);
             
             stopRobot();
             
             sleep(300);
             
-            sleep(300);
+            //While intaking artifacts rotate and strafe to collect both
+            drive(0.15, -0.1, -0.2);
             
-            intake.setPower(1);
+            sleep(1500);
             
-            drive(0.0, -0.1, 0);
+            stopRobot();
             
-            sleep(1000);
+            sleep(650);
             
             intake.setPower(0);
+            
+            sleep(300);
+            drive(-0.25, 0, 0);
+            sleep(700);
+            
+            drive(0, 0, 0.45);
+            sleep(600);
         }
     }
 
@@ -123,7 +140,7 @@ public class BluePosition3Autonomous extends LinearOpMode {
 
         // Run agitator to feed the ball
         agitator.setVelocity(AGITATOR_TARGET);
-        sleep(1300);
+        sleep(1400);
         agitator.setVelocity(0);
     }
 
