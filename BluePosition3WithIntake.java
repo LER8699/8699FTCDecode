@@ -84,43 +84,66 @@ public class BluePosition3Autonomous extends LinearOpMode {
             
             //Rotate to face stright at the loading zone
             drive(0, 0, -0.45);
-            sleep(800);
+            sleep(700);
 
             stopRobot();
 
             shooter.setVelocity(0);
 
-            //Drive towards loading zone
+            //Strafe to the left
             sleep(300);
-            drive(.55, 0, 0);
-            sleep(500);
-            
-            //Start intake
-            intake.setPower(1);
-            
+            drive(0, 0.3, 0);
             sleep(1300);
             
             stopRobot();
             
+            //Start intake
+            intake.setPower(1);
+            
+            //Drive towards nearest row
             sleep(300);
-            
-            //While intaking artifacts rotate and strafe to collect both
-            drive(0.15, -0.1, -0.2);
-            
-            sleep(1500);
+            drive(0.3, 0, 0);
+            sleep(3500);
             
             stopRobot();
             
-            sleep(650);
-            
             intake.setPower(0);
             
-            sleep(300);
-            drive(-0.25, 0, 0);
+            //Backs up from the row
+            sleep(100);
+            drive(-0.3, 0, 0);
+            sleep(3000);
+            
+            stopRobot();
+            
+            //Rotate back to face depot
+            sleep(100);
+            drive(0, 0, 0.45);
             sleep(700);
             
-            drive(0, 0, 0.45);
-            sleep(600);
+            stopRobot();
+            
+            //Back up and slightly rotate
+            sleep(100);
+            drive(-0.25, 0.0, -0.025);
+            sleep(850);
+            
+            stopRobot();
+        
+            shooter.setVelocity(SHOOTER_TARGET);
+
+            sleep(3000);
+            
+            //Shoot
+            for (int i = 1; i <= 3; i++) {
+                shoot(i);
+            }
+
+            sleep(300);
+            
+
+            agitator.setVelocity(0);
+            stopRobot();
         }
     }
 
