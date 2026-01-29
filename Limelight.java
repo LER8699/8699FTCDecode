@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
-@TeleOp(name = "Data Collector: Keli Light")
+@TeleOp(name = "Data Collector: Limelight")
 public class Limelight extends LinearOpMode {
 
     private Limelight3A limelight;
