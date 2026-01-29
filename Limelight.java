@@ -41,6 +41,8 @@ public class Limelight extends LinearOpMode {
 
         waitForStart();
 
+        boolean align = false;
+
         while (opModeIsActive()) {
 
             // --- SPEED MULTIPLIER LOGIC ---
@@ -86,8 +88,6 @@ public class Limelight extends LinearOpMode {
             if (result != null && result.isValid()) {
                 Pose3D botpose = result.getBotpose();
 
-                boolean align = false;
-
                 telemetry.addLine("=== FIELD POS ===");
                 telemetry.addData("X (m)", "%.3f", botpose.getPosition().x);
                 telemetry.addData("Y (m)", "%.3f", botpose.getPosition().y);
@@ -113,24 +113,24 @@ public class Limelight extends LinearOpMode {
                             lf.setPower(0.5);
                             rf.setPower(-0.5);
                             rb.setPower(0.5);
-                        } else {
+                        } else if (result.getTx() > 0) {
                             telemetry.addData("Target Angle", "Turn Right");
 
                             lf.setPower(-0.5);
                             lb.setPower(0.5);
                             rf.setPower(0.5);
-                        }
-
-                        if (result.getTy() > 0) {
-                            telemetry.addData("Vertical Alignment", "Move Down");
-
-                            lf.setPower(-0.5);
-                            lb.setPower(-0.5);
-                        } else {
-                            telemetry.addData("Vertical Alignment", "Move Up");
-
-                            lf.setPower(0.5);
-                            lb.setPower(0.5);
+                        } else if (result.getTx() == 0) {
+                            if (result.getTy() > 0) {
+                                telemetry.addData("Vertical Alignment", "Move Down");
+    
+                                lf.setPower(-0.5);
+                                lb.setPower(-0.5);
+                            } else {
+                                telemetry.addData("Vertical Alignment", "Move Up");
+    
+                                lf.setPower(0.5);
+                                lb.setPower(0.5);
+                            }
                         }
                     }
                 }
