@@ -10,7 +10,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 @TeleOp(name = "Data Collector: Keli Light")
-public class Kelilight extends LinearOpMode {
+public class Limelight extends LinearOpMode {
 
     private Limelight3A limelight;
     private DcMotor lf, lb, rf, rb;
