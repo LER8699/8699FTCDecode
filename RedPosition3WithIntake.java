@@ -28,7 +28,7 @@ public class RedPosition3Autonomous extends LinearOpMode {
         intake = hardwareMap.get(DcMotor.class, "intake");
 
         shooter = hardwareMap.get(DcMotorEx.class, "shooter");
-        initAgitator = hardwareMap.get(DcMotorEx.class, "agitator");
+        agitator = hardwareMap.get(DcMotorEx.class, "agitator");
 
         leftFront.setDirection(DcMotor.Direction.REVERSE);
         leftBack.setDirection(DcMotor.Direction.REVERSE);
@@ -48,27 +48,20 @@ public class RedPosition3Autonomous extends LinearOpMode {
 
         if (opModeIsActive()) {
             
-            //Drive slightly LEFT and forward (was right)
-            drive(0.07, -0.35, 0); 
-            sleep(1000);
-
-            stopRobot();
-            sleep(200);
-            
-            //Turn to face depot (Positive turn for Red)
-            drive(0, 0, 0.155); 
-            sleep(800);
-
-            stopRobot();
-            sleep(200);
-            
-            // Go forward and turn slightly
-            drive(0.2, 0.0, 0.025); 
-            sleep(850);
-            stopRobot();
-
+            // Start Shooter and Turn to face depot (Flipped to Positive Turn)
             shooter.setVelocity(SHOOTER_TARGET);
-            sleep(3000);
+            drive(0, 0, 0.35); 
+            sleep(400);
+
+            stopRobot();
+            sleep(200);
+            
+            // Go forward and turn more (Flipped to Positive Turn)
+            drive(0.25, 0.0, 0.045); 
+            sleep(800);
+            stopRobot();
+
+            sleep(1000);
             
             // Shoot
             for (int i = 1; i <= 3; i++) {
@@ -80,30 +73,28 @@ public class RedPosition3Autonomous extends LinearOpMode {
             agitator.setVelocity(0);
             stopRobot();
             
-            //Rotate to face loading zone (Positive turn for Red)
-            drive(0, 0, 0.45); 
+            // Rotate to face straight at the row (Flipped to Positive Turn)
+            drive(0, 0, 0.5); 
             sleep(700);
 
             stopRobot();
-            shooter.setVelocity(0);
 
-            //Strafe to the RIGHT (Negative X)
+            // Strafe to the LEFT (Flipped from 0.66 to -0.66)
             sleep(300);
-            drive(0, -0.3, 0); 
-            sleep(1300);
+            drive(0, -0.66, 0); 
+            sleep(650);
             
             stopRobot();
             
             // Start intake
             intake.setPower(1);
             
-            //Drive towards nearest row
+            // Drive towards nearest row (Forward Y remains positive)
             sleep(300);
-            drive(0.3, 0, 0);
-            sleep(3500);
+            drive(0.25, 0, 0);
+            sleep(4200);
             
             stopRobot();
-            intake.setPower(0);
             
             // Backs up from the row
             sleep(100);
@@ -111,31 +102,42 @@ public class RedPosition3Autonomous extends LinearOpMode {
             sleep(3000);
             
             stopRobot();
+            intake.setPower(0);
             
-            //Rotate back (Negative turn for Red)
+            // Rotate back to face depot (Flipped to Negative Turn)
             sleep(100);
-            drive(0, 0, -0.45);
+            drive(0, 0, -0.425); 
             sleep(700);
             
             stopRobot();
             
-            //Back up and slightly rotate
+            // Back up and slightly rotate (Flipped turn from 0.07 to -0.07)
             sleep(100);
-            drive(-0.25, 0.0, 0.025);
+            drive(-0.425, 0.0, -0.07); 
             sleep(850);
             
             stopRobot();
-        
-            shooter.setVelocity(SHOOTER_TARGET);
+
             sleep(3000);
             
+            // Shoot again
             for (int i = 1; i <= 3; i++) {
                 shoot(i);
             }
 
             sleep(300);
+            
             agitator.setVelocity(0);
+            shooter.setVelocity(0);
             stopRobot();
+            
+            // Final nudge
+            sleep(100);
+            drive(0.8, 0, 0);
+            sleep(200);
+            
+            stopRobot();
+            shooter.setVelocity(0);
         }
     }
 
@@ -144,6 +146,7 @@ public class RedPosition3Autonomous extends LinearOpMode {
             telemetry.addData("Status", "Recovering for Ball " + ballNumber);
             telemetry.update();
         }
+
         agitator.setVelocity(AGITATOR_TARGET);
         sleep(1400);
         agitator.setVelocity(0);
