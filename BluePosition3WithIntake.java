@@ -49,27 +49,26 @@ public class BluePosition3Autonomous extends LinearOpMode {
         if (opModeIsActive()) {
             
             //Drive slightly right and forward
-            drive(.07, .35, 0);
-            sleep(1000);
+            //drive(.07, 0.0, 0);
+            //sleep(1000);
 
-            stopRobot();
-            sleep(200);
+            //stopRobot();
+            //sleep(200);
             
             //Turn to face depot
-            drive(0, 0, -0.155);
-            sleep(800);
+            shooter.setVelocity(SHOOTER_TARGET);
+            drive(0, 0, -0.35);
+            sleep(400);
 
             stopRobot();
             sleep(200);
             
             //Go forward to account for new gate and turn more
-            drive(0.2, 0.0, -0.025);
-            sleep(850);
+            drive(0.25, 0.0, -0.045);
+            sleep(800);
             stopRobot();
 
-            shooter.setVelocity(SHOOTER_TARGET);
-
-            sleep(3000);
+            sleep(1000);
             
             //Shoot
             for (int i = 1; i <= 3; i++) {
@@ -82,18 +81,16 @@ public class BluePosition3Autonomous extends LinearOpMode {
             agitator.setVelocity(0);
             stopRobot();
             
-            //Rotate to face stright at the loading zone
-            drive(0, 0, -0.45);
+            //Rotate to face stright at the row
+            drive(0, 0, -0.5);
             sleep(700);
 
             stopRobot();
 
-            shooter.setVelocity(0);
-
-            //Strafe to the left
+            //Strafe to the right
             sleep(300);
-            drive(0, 0.3, 0);
-            sleep(1300);
+            drive(0, 0.66, 0);
+            sleep(650);
             
             stopRobot();
             
@@ -102,12 +99,10 @@ public class BluePosition3Autonomous extends LinearOpMode {
             
             //Drive towards nearest row
             sleep(300);
-            drive(0.3, 0, 0);
-            sleep(3500);
+            drive(0.25, 0, 0);
+            sleep(4200);
             
             stopRobot();
-            
-            intake.setPower(0);
             
             //Backs up from the row
             sleep(100);
@@ -115,22 +110,21 @@ public class BluePosition3Autonomous extends LinearOpMode {
             sleep(3000);
             
             stopRobot();
+            intake.setPower(0);
             
             //Rotate back to face depot
             sleep(100);
-            drive(0, 0, 0.45);
+            drive(0, 0, 0.425);
             sleep(700);
             
             stopRobot();
             
             //Back up and slightly rotate
             sleep(100);
-            drive(-0.25, 0.0, -0.025);
+            drive(-0.425, 0.0, 0.07);
             sleep(850);
             
             stopRobot();
-        
-            shooter.setVelocity(SHOOTER_TARGET);
 
             sleep(3000);
             
@@ -143,7 +137,15 @@ public class BluePosition3Autonomous extends LinearOpMode {
             
 
             agitator.setVelocity(0);
+            shooter.setVelocity(0);
             stopRobot();
+            
+            sleep(100);
+            drive(0.8, 0, 0);
+            sleep(200);
+            
+            stopRobot();
+            shooter.setVelocity(0);
         }
     }
 
