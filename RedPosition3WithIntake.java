@@ -57,8 +57,8 @@ public class RedPosition3Autonomous extends LinearOpMode {
             sleep(200);
             
             // Go forward and turn more (Flipped to Positive Turn)
-            drive(0.25, 0.0, 0.045); 
-            sleep(800);
+            drive(0.25, 0.0, 0.03); 
+            sleep(400);
             stopRobot();
 
             sleep(1000);
@@ -74,7 +74,7 @@ public class RedPosition3Autonomous extends LinearOpMode {
             stopRobot();
             
             // Rotate to face straight at the row (Flipped to Positive Turn)
-            drive(0, 0, 0.5); 
+            drive(0, 0, 0.455); 
             sleep(700);
 
             stopRobot();
@@ -106,14 +106,14 @@ public class RedPosition3Autonomous extends LinearOpMode {
             
             // Rotate back to face depot (Flipped to Negative Turn)
             sleep(100);
-            drive(0, 0, -0.425); 
+            drive(0, 0, -0.405); 
             sleep(700);
             
             stopRobot();
             
             // Back up and slightly rotate (Flipped turn from 0.07 to -0.07)
             sleep(100);
-            drive(-0.425, 0.0, -0.07); 
+            drive(-0.41, 0.0, -0.1); 
             sleep(850);
             
             stopRobot();
