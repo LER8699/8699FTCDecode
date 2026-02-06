@@ -43,6 +43,9 @@ public class Limelight extends LinearOpMode {
 
         boolean align = false;
 
+        boolean LeftAligned = false;
+        boolean RightAligned = false;
+
         while (opModeIsActive()) {
 
             // --- SPEED MULTIPLIER LOGIC ---
@@ -97,51 +100,62 @@ public class Limelight extends LinearOpMode {
                 telemetry.addData("tx", "%.2f°", result.getTx());
                 telemetry.addData("ty", "%.2f°", result.getTy());
 
+                telemetry.addLine("=== TARGET RANGE ===");
+                telemetry.addData("Target Area: ", result.getTa());
+
                 if (gamepad2.b) {
                     align =!(align);
                 };
 
                 if (align) {
-                    if (result.getTx() == 0 && result.getTy() == 0) {
-                        telemetry.addData("Target Angle", "Straight Ahead");
-                        align = false;
-                    } else {
+                    if (result.getTx() > 1.0) {
+                        telemetry.addData("Target Angle", "Turn Left");
 
-                        if (result.getTx() < 0) {
-                            telemetry.addData("Target Angle", "Turn Left");
+                        lf.setPower(0.5);
+                        rf.setPower(-0.5);
+                        rb.setPower(0.5);
+                    } else if (result.getTx() < -1.0) {
+                        telemetry.addData("Target Angle", "Turn Right");
 
-                            lf.setPower(0.5);
-                            rf.setPower(-0.5);
-                            rb.setPower(0.5);
-                        } else if (result.getTx() > 0) {
-                            telemetry.addData("Target Angle", "Turn Right");
+                        lf.setPower(-0.5);
+                        lb.setPower(0.5);
+                        rf.setPower(0.5);
+                    };
+
+                    if (result.getTx() > 1.0 && result.getTx() < -1.0) {
+                        LeftAligned = true;
+                    }
+
+                    if (LeftAligned) {
+                        if (result.getTy() > 1.0) {
+                            telemetry.addData("Vertical Alignment", "Move Down");
 
                             lf.setPower(-0.5);
+                            lb.setPower(-0.5);
+                        } else if (result.getTy() < -1.0) {
+                            telemetry.addData("Vertical Alignment", "Move Up");
+
+                            lf.setPower(0.5);
                             lb.setPower(0.5);
-                            rf.setPower(0.5);
-                        } else if (result.getTx() == 0) {
-                            if (result.getTy() > 0) {
-                                telemetry.addData("Vertical Alignment", "Move Down");
-    
-                                lf.setPower(-0.5);
-                                lb.setPower(-0.5);
-                            } else {
-                                telemetry.addData("Vertical Alignment", "Move Up");
-    
-                                lf.setPower(0.5);
-                                lb.setPower(0.5);
-                            }
                         }
+                    };
+
+                    if (result.getTy() > 1.0 && result.getTy() < -1.0) {
+                        RightAligned = true;
+                    }
+
+                    if (RightAligned && LeftAligned) {
+                        align = false;
+                        LeftAligned = false;
+                        RightAligned = false;
                     }
                 }
 
-                telemetry.addLine("=== TARGET RANGE ===");
-                telemetry.addData("Target Area: ", result.getTa());
             } else {
                 telemetry.addLine("BUNS DETECTED");
             }
 
-            telemetry.update();
+        telemetry.update();
         }
         limelight.stop();
     }
