@@ -16,17 +16,18 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 public class DriveAndShooter extends LinearOpMode {
 
     // Hardware Definitions
-    private DcMotor leftFront, rightFront, leftBack, rightBack, intake;
-    private DcMotorEx shooter, agitator;
-    //private Limelight3A limelight;
+    private DcMotorEx leftFront, rightFront, leftBack, rightBack;
+    private DcMotor intake, agitator;
+    private DcMotorEx shooter;
+    private Limelight3A limelight;
 
-    private IMU imu;
+    //private IMU imu;
 
     // Shooter PIDF Constants
     final static double F = 13.5354;
     final static double P = 300.0;
 
-    // Preset Velocities
+    // Preset Velocities (Adjust these ticks/sec values based on your testing)
     final static double VELOCITY_FAR   = 1800;
     final static double VELOCITY_MID   = 1512.0;
     final static double VELOCITY_CLOSE = 1412.0;
@@ -34,28 +35,39 @@ public class DriveAndShooter extends LinearOpMode {
 
     final static double POWER_ITERATE_STEP = 50.0;
     final static double MAX_VELOCITY = 2800.0;
+    
+    final static double MAX_SPEED_ON_WHEELS = 2580;
+    
+    int lastVelocity = 0;
 
     @Override
     public void runOpMode() {
         // --- 1. Hardware Mapping ---
-        leftFront = hardwareMap.get(DcMotor.class, "LF");
-        rightFront = hardwareMap.get(DcMotor.class, "RF");
-        leftBack = hardwareMap.get(DcMotor.class, "LB");
-        rightBack = hardwareMap.get(DcMotor.class, "RB");
+        leftFront = hardwareMap.get(DcMotorEx.class, "LF");
+        rightFront = hardwareMap.get(DcMotorEx.class, "RF");
+        leftBack = hardwareMap.get(DcMotorEx.class, "LB");
+        rightBack = hardwareMap.get(DcMotorEx.class, "RB");
         intake =  hardwareMap.get(DcMotor.class, "intake");
 
+
         shooter = hardwareMap.get(DcMotorEx.class, "shooter");
-        agitator = hardwareMap.get(DcMotorEx.class, "agitator");
-        imu = hardwareMap.get(IMU.class, "imu");
+        agitator = hardwareMap.get(DcMotor.class, "agitator");
+        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        //imu = hardwareMap.get(IMU.class, "imu");
 
         shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        agitator.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // --- 2. Configuration ---
-        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
-                RevHubOrientationOnRobot.UsbFacingDirection.UP));
-        imu.initialize(parameters);
+        // IMU Orientation (Update logo/usb direction if your hub is mounted differently)
+        //IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
+                //RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
+                //RevHubOrientationOnRobot.UsbFacingDirection.UP));
+        //imu.initialize(parameters);
 
         PIDFCoefficients pidfCoefficients = new PIDFCoefficients(P, 0, 0, F);
         shooter.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
@@ -69,75 +81,84 @@ public class DriveAndShooter extends LinearOpMode {
         shooter.setDirection(DcMotor.Direction.REVERSE);
         agitator.setDirection(DcMotor.Direction.REVERSE);
 
+        // Initialize Limelight
+        limelight.pipelineSwitch(0);
+        limelight.start();
+
         // State Variables
         double targetVelocity = 1312;
         double driverSpeedPower = 0.5;
         boolean fieldRelative = false;
 
-        boolean lastLB = false, lastRB1 = false;
+        boolean lastLB = false, lastRB1 = false; // Driver 1 bumpers
         boolean lastUp = false, lastDown = false;
-        boolean shooterOn = false, wasAPressed = false;
-        boolean lastGamepad1X = false;
+        boolean shooterOn = false, wasAPressed = false; //Driver 2
+        //boolean lastGamepad1X = false;
 
         waitForStart();
 
         while (opModeIsActive()) {
             // --- 3. Driving Logic (GP1) ---
 
-            /* --- RELATIVE MOVEMENT COMMENTED OUT ---
-            if (gamepad1.x && !lastGamepad1X) {
-                fieldRelative = !fieldRelative;
-            }
-            lastGamepad1X = gamepad1.x;
+            // Toggle Field Relative with BACK button
+            //if (gamepad1.x && !lastGamepad1X) {
+               // fieldRelative = !fieldRelative;
+            //}
+            //lastGamepad1X = gamepad1.back;
 
-            if (gamepad1.start) {
-                imu.resetYaw();
-            }
-            --------------------------------------- */
+            // Reset Yaw with START button (Handy if the robot drifts)
+            //if (gamepad1.start) {
+                //imu.resetYaw();
+            //}
 
             double y = -gamepad1.left_stick_y;
             double x = gamepad1.left_stick_x;
             double rx = gamepad1.right_stick_x;
 
-            /* --- FIELD CENTRIC CONVERSION COMMENTED OUT ---
-            if (fieldRelative) {
+            /* if (fieldRelative) {
+                // Field-Centric Conversion
                 double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+
+                // Rotate the movement vector by the negative robot heading
                 double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
                 double rotY = x * Math.sin(-botHeading) + y * Math.cos(-botHeading);
+
                 x = rotX;
                 y = rotY;
-            }
-            ------------------------------------------------ */
+            } */
 
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1.0);
 
-            leftFront.setPower(((y + x + rx) / denominator) * driverSpeedPower);
-            leftBack.setPower(((y - x + rx) / denominator) * driverSpeedPower);
-            rightFront.setPower(((y - x - rx) / denominator) * driverSpeedPower);
-            rightBack.setPower(((y + x - rx) / denominator) * driverSpeedPower);
+            leftFront.setVelocity(((y + x + rx) / denominator) * MAX_SPEED_ON_WHEELS * driverSpeedPower);
+            leftBack.setVelocity(((y - x + rx) / denominator) * MAX_SPEED_ON_WHEELS * driverSpeedPower);
+            rightFront.setVelocity(((y - x - rx) / denominator)* MAX_SPEED_ON_WHEELS * driverSpeedPower);
+            rightBack.setVelocity(((y + x - rx) / denominator)* MAX_SPEED_ON_WHEELS * driverSpeedPower);
 
-            // Speed Presets
             if (gamepad1.left_trigger > 0.5) {
                 driverSpeedPower = 0.3;
             } else if (gamepad1.right_trigger > 0.5) {
                 driverSpeedPower = 0.8;
             }
 
-            // Driver Speed Toggle
+            // Driver Speed Toggle (GP1 Bumpers)
             if (gamepad1.right_bumper && !lastRB1) driverSpeedPower = Math.min(1.0, driverSpeedPower + 0.1);
             if (gamepad1.left_bumper && !lastLB) driverSpeedPower = Math.max(0.1, driverSpeedPower - 0.1);
             lastRB1 = gamepad1.right_bumper;
             lastLB = gamepad1.left_bumper;
 
-            // --- 4. Shooter Logic (GP2) ---
+            // --- 4. Shooter Presets & Manual Adjust (GP2) ---
+
+
+            //INTAKE
             if (gamepad2.dpad_right) {
-                intake.setPower(1.0);
+                intake.setPower(1.0);  // Intake Forward
             } else if (gamepad2.dpad_left) {
-                intake.setPower(-1.0);
+                intake.setPower(-1.0); // Intake Reverse
             } else {
-                intake.setPower(0.0);
+                intake.setPower(0.0);  // Stop Intake
             }
 
+            // PRESETS
             if (gamepad2.left_trigger > 0.5) {
                 targetVelocity = VELOCITY_FAR;
             } else if (gamepad2.right_trigger > 0.5) {
@@ -148,15 +169,21 @@ public class DriveAndShooter extends LinearOpMode {
                 targetVelocity = ENEMY_DEPOT;
             }
 
+            // MANUAL ADJUST (Fine tuning)
             if (gamepad2.dpad_up && !lastUp) targetVelocity = Math.min(MAX_VELOCITY, targetVelocity + POWER_ITERATE_STEP);
             if (gamepad2.dpad_down && !lastDown) targetVelocity = Math.max(0.0, targetVelocity - POWER_ITERATE_STEP);
             lastUp = gamepad2.dpad_up;
             lastDown = gamepad2.dpad_down;
 
+            // Shooter Toggle
             if (gamepad2.a && !wasAPressed) shooterOn = !shooterOn;
             wasAPressed = gamepad2.a;
 
             if (shooterOn) {
+                int velocityFromDistance = getVelocityFromDistance();
+                if (velocityFromDistance != 0) {
+                    targetVelocity = velocityFromDistance;
+                }
                 shooter.setVelocity(targetVelocity);
             } else {
                 shooter.setVelocity(0.0);
@@ -165,18 +192,22 @@ public class DriveAndShooter extends LinearOpMode {
             double velocityTolerance = 40.0;
             boolean isAtSpeed = Math.abs(shooter.getVelocity() - targetVelocity) < velocityTolerance;
 
-            // --- 5. Agitator Logic ---
+            // --- 5. Agitator Logic (GP2 B) ---
             if (gamepad2.b && isAtSpeed && shooterOn) {
+                // Left bumper on GP2 reverses agitator if it gets stuck
                 agitator.setDirection(gamepad2.left_bumper ? DcMotor.Direction.FORWARD : DcMotor.Direction.REVERSE);
-                agitator.setVelocity(600.0);
+                agitator.setPower(1.0);
             } else if (gamepad2.b && !isAtSpeed) {
-                agitator.setVelocity(0);
+                agitator.setPower(0.0);
                 gamepad2.rumble(0.35, 0.35, 100);
             } else {
-                agitator.setVelocity(0);
+                agitator.setPower(0);
             }
 
-            // --- 7. Telemetry ---
+            // --- 6. Limelight Data Collection ---
+            //LLResult result = limelight.getLatestResult();
+
+            // --- 7. Math Conversion & Telemetry ---
             double v = targetVelocity;
             double calculatedPower = (3.43429 * Math.pow(10, -9)) * Math.pow(v, 3)
                     - (0.0000103703) * Math.pow(v, 2)
@@ -187,10 +218,70 @@ public class DriveAndShooter extends LinearOpMode {
             telemetry.addData("State", shooterOn ? ">> RUNNING <<" : "STOPPED");
             telemetry.addData("Target Velocity", "%.0f ticks/s", targetVelocity);
             telemetry.addData("Current Velocity", "%.0f ticks/s", shooter.getVelocity());
-            telemetry.addData("Drive Mode", fieldRelative ? "FIELD-CENTRIC" : "ROBOT-CENTRIC");
-            telemetry.addData("Speed Multiplier", "%.1f", driverSpeedPower);
+            telemetry.addData("Calculated Power", "%.2f%%", calculatedPower);
+            telemetry.addData("Left Front Velocity: ", leftFront.getVelocity());
+            telemetry.addData("Right Front Velocity: ", rightFront.getVelocity());
+            telemetry.addData("Left Back Velocity: ", leftBack.getVelocity());
+            telemetry.addData("Right Back Velocity: ", rightBack.getVelocity());
+            telemetry.addData("Limelight Distance (cm): ", getDistanceFromAprilTag());
+
+            // Limelight Position Data
+            /*telemetry.addLine("\n--- LIMELIGHT DATA ---");
+            if (result != null && result.isValid()) {
+                Pose3D botpose = result.getBotpose();
+
+                telemetry.addData("X (m)", "%.3f", botpose.getPosition().x);
+                telemetry.addData("Y (m)", "%.3f", botpose.getPosition().y);
+                telemetry.addData("Yaw", "%.2f°", botpose.getOrientation().getYaw(AngleUnit.DEGREES));
+                telemetry.addData("tx", "%.2f°", result.getTx());
+                telemetry.addData("ty", "%.2f°", result.getTy());
+            } else {
+                telemetry.addLine("NO TARGET DETECTED");
+            }*/
+
+            telemetry.addLine("\n=== CONTROLS QUICK-REF ===");
+            telemetry.addLine("GP2 A: Toggle Shooter");
+            telemetry.addLine("GP2 Dpad Up/Down: +/- Power");
+            telemetry.addLine("GP2 B: Agitator (L-Trig to Rev)");
+            telemetry.addData("GP1 Bumpers: Drive Speed, Current: ", driverSpeedPower);
+
+            telemetry.addLine("\n--- PRESETS (GP2) ---");
+            telemetry.addLine("L-Trig: Far | R-Trig: Close | R-Bumper: Mid");
 
             telemetry.update();
         }
+
+        //limelight.stop();
+    }
+    
+    public double getDistanceFromAprilTag() {
+        LLResult result = limelight.getLatestResult();
+
+        double foundDistance = 0.0;
+
+        if (result != null && result.isValid()) {
+            double ty = result.getTy(); //Distance from center of limelight image to the center of target (apriltag)
+
+            double mountAngle = 20.0;
+            double lensHeight = 23.0; //CM
+            double tagHeight = 71.12; //CM
+
+            double distance = (tagHeight - lensHeight) / Math.tan(Math.toRadians(mountAngle + ty));
+            telemetry.addData("Calculated Distance", distance);
+            foundDistance = distance;
+        }
+
+        return foundDistance;
+    }
+    
+    public int getVelocityFromDistance() {
+        int calculatedVelocity = 0;
+        double distanceFromDepot = getDistanceFromAprilTag();
+        
+        if (distanceFromDepot != 0.0) {
+            calculatedVelocity = (int) ((1.75534 * distanceFromDepot) + 1242.90722);
+        }
+        
+        return calculatedVelocity;
     }
 }
