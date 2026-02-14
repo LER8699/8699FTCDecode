@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -11,6 +12,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+
+import java.util.List;
 
 @TeleOp(name = "DriveAndShooter")
 public class DriveAndShooter extends LinearOpMode {
@@ -39,6 +42,13 @@ public class DriveAndShooter extends LinearOpMode {
     final static double MAX_SPEED_ON_WHEELS = 2580;
     
     int lastVelocity = 0;
+    
+    double lastError = 0.0;
+    int id_needed = 0;
+    
+    boolean align = false;
+    
+    double totalError = 0.0;
 
     @Override
     public void runOpMode() {
@@ -203,6 +213,74 @@ public class DriveAndShooter extends LinearOpMode {
             } else {
                 agitator.setPower(0);
             }
+            
+            LLResult result = limelight.getLatestResult();
+            
+            if (result != null && result.isValid()) {
+                Pose3D botpose = result.getBotpose();
+                
+                List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+
+                if (gamepad1.left_bumper) {
+                    id_needed = 20;
+                } else if(gamepad1.right_bumper) {
+                    id_needed = 24;
+                }
+                
+                double xOffset = 0.0;
+                double yOffset = 0.0;
+    
+                double TargetArea = 0.0;
+                
+                for (LLResultTypes.FiducialResult tag : fiducials) {
+                    if (tag.getFiducialId() == id_needed) {
+                        // 3. Select values from this specific "row"
+                        xOffset = tag.getTargetXDegrees();
+                        yOffset = tag.getTargetYDegrees();
+    
+                        TargetArea = tag.getTargetArea();
+    
+                        botpose = tag.getRobotPoseTargetSpace();
+                        
+                        if (gamepad1.b) {
+                            align =!(align);
+                        }
+                    }
+                }
+                
+                if (align) {
+                    double turn = GetPefectTurn(xOffset);
+                    
+                    leftFront.setVelocity(turn * MAX_SPEED_ON_WHEELS);
+                    leftBack.setVelocity(turn * MAX_SPEED_ON_WHEELS);
+                    rightFront.setVelocity(-turn * MAX_SPEED_ON_WHEELS);
+                    rightBack.setVelocity(-turn * MAX_SPEED_ON_WHEELS);
+                    
+                    if (Math.abs(xOffset) < 1.0) {
+                        align = false;
+                        totalError = 0; // Reset for next time!
+                    }
+                    
+                } else {
+                    // prevent "Integral Windup"
+                    totalError = 0;
+                    lastError = 0;
+                }
+                
+                telemetry.addLine("=== FIELD POS ===");
+                telemetry.addData("X (m)", "%.3f", botpose.getPosition().x);
+                telemetry.addData("Y (m)", "%.3f", botpose.getPosition().y);
+                telemetry.addData("Yaw", "%.2f°", botpose.getOrientation().getYaw(AngleUnit.DEGREES));
+    
+                telemetry.addLine("=== TARGET DATA ===");
+                telemetry.addData("tx", "%.2f°", xOffset);
+                telemetry.addData("ty", "%.2f°", yOffset);
+    
+                telemetry.addLine("=== TARGET RANGE ===");
+                telemetry.addData("Target Area: ", TargetArea);
+                
+                
+            }
 
             // --- 6. Limelight Data Collection ---
             //LLResult result = limelight.getLatestResult();
@@ -272,6 +350,45 @@ public class DriveAndShooter extends LinearOpMode {
         }
 
         return foundDistance;
+    }
+    
+    public double GetPefectTurn(double xOffset) {
+        boolean aligned = false;
+        
+        double pTerm = 0.0;
+        double iTerm = 0.0;
+        double dTerm = 0.0;
+        
+        // Constants
+        double kP = 0.045;
+        double kI = 0.00001;
+        double kD = 0.24;
+        
+        telemetry.addData("P", pTerm);
+        telemetry.addData("I", iTerm);
+        telemetry.addData("D", dTerm);
+
+        double error = xOffset; // Current Error (E)
+
+        // 1. Proportional Term (P1)
+        pTerm = kP * error;
+
+        // 2. Integral Term (P2)
+        totalError += error;
+        iTerm = kI * totalError;
+
+        // 3. Derivative Term (P3)
+        dTerm = kD * (error - lastError);
+
+        // Combine them (Turn)
+        double power = pTerm + iTerm + dTerm;
+
+        // Save current error for the next loop's D-term calculation
+        lastError = error;
+
+        // Exit condition
+        return power;
+        
     }
     
     public int getVelocityFromDistance() {
