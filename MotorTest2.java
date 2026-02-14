@@ -17,12 +17,12 @@ public class MotorTest2 extends LinearOpMode {
         waitForStart();
         runtime.reset();
 
-        if (opModeIsActive()) {
-
-        DcMotor motor1 = null;
-        String motorName = null;
-                String[] motors = {"LF", "RF", "LB", "RB"};
-
+            while (opModeIsActive()) {
+    
+            DcMotor motor1 = null;
+            String motorName = null;
+            String[] motors = {"LF", "RF", "LB", "RB"};
+    
             if (gamepad1.aWasPressed()) {
                 motorName = motors[1];
                 }
