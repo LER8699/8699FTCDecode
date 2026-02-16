@@ -5,11 +5,11 @@ public static class Paths {
       Path1 = follower.pathBuilder()
           .addPath(
             new BezierLine(
-              new Pose(72.554, 22.967),
-            new Pose(71.874, 71.603)
+              new Pose(38.539, 33.625),
+            new Pose(105.209, 33.279)
             )
           )
-          .setTangentHeadingInterpolation()
+          .setLinearHeadingInterpolation(Math.toRadians(null), Math.toRadians(null))
           .build();
     }
   }
