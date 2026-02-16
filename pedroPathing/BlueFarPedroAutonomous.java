@@ -89,7 +89,7 @@ public static class Paths {
           .addPath(
             new BezierLine(
               new Pose(64.677, 36.009),
-            new Pose(12.165, 36.244)
+            new Pose(16.474, 36.244)
             )
           )
           .setTangentHeadingInterpolation()
@@ -98,7 +98,7 @@ public static class Paths {
       ShootOne = follower.pathBuilder()
           .addPath(
             new BezierLine(
-              new Pose(12.165, 36.244),
+              new Pose(16.474, 36.244),
             new Pose(64.918, 17.282)
             )
           )
@@ -119,7 +119,7 @@ public static class Paths {
           .addPath(
             new BezierLine(
               new Pose(64.176, 59.187),
-            new Pose(15.973, 59.724)
+            new Pose(18.014, 59.498)
             )
           )
           .setTangentHeadingInterpolation()
@@ -128,7 +128,7 @@ public static class Paths {
       ShootTwo = follower.pathBuilder()
           .addPath(
             new BezierLine(
-              new Pose(15.973, 59.724),
+              new Pose(18.014, 59.498),
             new Pose(64.978, 17.031)
             )
           )
