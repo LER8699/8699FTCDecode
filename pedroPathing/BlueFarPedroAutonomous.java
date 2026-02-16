@@ -27,7 +27,7 @@ public class BlueFarPedroAutonomous extends OpMode {
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
 
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(55.3196850, 9.36062992, Math.toRadians(115)));
+        follower.setStartingPose(new Pose(56.01259842519684, 6.122834645669277, Math.toRadians(90)));
 
         paths = new Paths(follower); // Build paths
 
@@ -53,54 +53,63 @@ public class BlueFarPedroAutonomous extends OpMode {
     }
 
     public static class Paths {
-        public PathChain Path1;
-        public PathChain Path2;
-        public PathChain Path3;
-        public PathChain Path4;
+    public PathChain Path1;
+    public PathChain Path2;
+    public PathChain Path3;
+    public PathChain Path4;
 
-        public Paths(Follower follower) {
-            Path1 = follower.pathBuilder()
-                    .addPath(
-                            new BezierLine(
-                                    new Pose(58.280, 7.710),
-                                    new Pose(58.268, 8.107)
-                            )
-                    )
-                    .setConstantHeadingInterpolation(Math.toRadians(90))
-                    .build();
+    public Paths(Follower follower) {
+      Path1 = follower.pathBuilder()
+          .addPath(
+            new BezierLine(
+              new Pose(56.013, 6.123),
+            new Pose(56.227, 6.746)
+            )
+          )
+          .setConstantHeadingInterpolation(Math.toRadians(90))
+          .build();
 
-            Path2 = follower.pathBuilder()
-                    .addPath(
-                            new BezierLine(
-                                    new Pose(58.268, 8.107),
-                                    new Pose(62.087, 18.501)
-                            )
-                    )
-                    .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(115))
-                    .build();
+      Path2 = follower.pathBuilder()
+          .addPath(
+            new BezierCurve(
+              new Pose(56.227, 6.746),
+            new Pose(58.507, 10.431),
+            new Pose(57.994, 10.859),
+            new Pose(58.392, 11.786),
+            new Pose(58.790, 12.713),
+            new Pose(59.188, 13.640),
+            new Pose(59.587, 14.567),
+            new Pose(59.985, 15.493),
+            new Pose(60.383, 16.420),
+            new Pose(59.194, 17.347),
+            new Pose(60.499, 18.274)
+            )
+          )
+          .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(120))
+          .build();
 
-            Path3 = follower.pathBuilder()
-                    .addPath(
-                            new BezierCurve(
-                                    new Pose(62.087, 18.501),
-                                    new Pose(46.542, 38.589),
-                                    new Pose(17.123, 35.175)
-                            )
-                    )
-                    .setTangentHeadingInterpolation()
-                    .build();
+      Path3 = follower.pathBuilder()
+          .addPath(
+            new BezierCurve(
+              new Pose(60.499, 18.274),
+            new Pose(46.539, 38.586),
+            new Pose(18.937, 35.175)
+            )
+          )
+          .setTangentHeadingInterpolation()
+          .build();
 
-            Path4 = follower.pathBuilder()
-                    .addPath(
-                            new BezierLine(
-                                    new Pose(17.123, 35.175),
-                                    new Pose(62.211, 18.608)
-                            )
-                    )
-                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(115))
-                    .build();
-        }
+      Path4 = follower.pathBuilder()
+          .addPath(
+            new BezierLine(
+              new Pose(18.937, 35.175),
+            new Pose(60.397, 18.381)
+            )
+          )
+          .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(120))
+          .build();
     }
+  }
 
     public void autonomousPathUpdate() {
         switch (pathState) {
