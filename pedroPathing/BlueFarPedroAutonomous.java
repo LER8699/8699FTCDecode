@@ -63,7 +63,7 @@ public static class Paths {
       InitialShot = follower.pathBuilder()
           .addPath(
             new BezierLine(
-              new Pose(55.546, 7.320),
+              new Pose(59.628, 7.546),
             new Pose(59.641, 19.276)
             )
           )
@@ -87,7 +87,7 @@ public static class Paths {
             new Pose(18.304, 36.644)
             )
           )
-          .setTangentHeadingInterpolation()
+          .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
           .build();
 
       ReturnOne = follower.pathBuilder()
@@ -97,7 +97,7 @@ public static class Paths {
             new Pose(60.268, 36.929)
             )
           )
-          .setTangentHeadingInterpolation()
+          .setConstantHeadingInterpolation(Math.toRadians(180))
           .build();
 
       ShootOne = follower.pathBuilder()
@@ -107,7 +107,7 @@ public static class Paths {
             new Pose(59.611, 19.219)
             )
           )
-          .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(120))
+          .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(120))
           .build();
     }
   }
