@@ -27,7 +27,7 @@ public class BlueFarPedroAutonomous extends OpMode {
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
 
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(55.3196850, 9.36062992, Math.toRadians(115)));
+        follower.setStartingPose(new Pose(55.3196850, 9.36062992, Math.toRadians(90)));
 
         paths = new Paths(follower); // Build paths
 
