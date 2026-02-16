@@ -52,13 +52,7 @@ public class BlueFarPedroAutonomous extends OpMode {
         panelsTelemetry.update(telemetry);
     }
 
-    public static class Paths {
-    public PathChain Path1;
-    public PathChain Path2;
-    public PathChain Path3;
-    public PathChain Path4;
-
- public static class Paths {
+  public static class Paths {
     public PathChain Path1;
     public PathChain Path2;
     public PathChain Path3;
