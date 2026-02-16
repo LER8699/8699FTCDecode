@@ -242,9 +242,16 @@ public class DriveAndShooter extends LinearOpMode {
     
                         botpose = tag.getRobotPoseTargetSpace();
                         
-                        if (gamepad1.b) {
-                            align =!(align);
+                        // Toggle align with B button (GP1)
+                        if (gamepad1.b && !lastBPressed) {
+                            align = !align;
+                        
+                            // Reset PID when toggling
+                            totalError = 0;
+                            lastError = 0;
                         }
+                        lastBPressed = gamepad1.b;
+
                     }
                 }
                 
