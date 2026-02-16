@@ -17,12 +17,17 @@ public class MotorTest2 extends LinearOpMode {
         waitForStart();
         runtime.reset();
 
-            while (opModeIsActive()) {
-    
-            DcMotor motor1 = null;
-            String motorName = null;
-            String[] motors = {"LF", "RF", "LB", "RB"};
-    
+        if (opModeIsActive()) {
+            telemetry.addData("X:", "Wheel - Left Front");
+            telemetry.addData("SQUARE:", "Wheel - Back Left");
+            telemetry.addData("CIRCLE:", "Wheel - Front Right");
+            telemetry.addData("TRIANGLE:", "Wheel - Back Right");
+
+            telemetry.update();
+        DcMotor motor1 = null;
+        String motorName = null;
+                String[] motors = {"LF", "RF", "LB", "RB"};
+
             if (gamepad1.aWasPressed()) {
                 motorName = motors[1];
                 }
@@ -42,6 +47,11 @@ public class MotorTest2 extends LinearOpMode {
                     motor1 = hardwareMap.get(DcMotor.class, motorName);
 
                     // Announce which motor is running
+                    telemetry.addData("X:", "Wheel - Left Front");
+                    telemetry.addData("SQUARE:", "Wheel - Back Left");
+                    telemetry.addData("CIRCLE:", "Wheel - Front Right");
+                    telemetry.addData("TRIANGLE:", "Wheel - Back Right");
+
                     telemetry.addData("Motor: ", "Running: " + motorName);
                     telemetry.update();
 
@@ -54,6 +64,11 @@ public class MotorTest2 extends LinearOpMode {
                     sleep(500);
 
                 } catch (Exception e) {
+                    telemetry.addData("X:", "Wheel - Left Front");
+                    telemetry.addData("SQUARE:", "Wheel - Back Left");
+                    telemetry.addData("CIRCLE:", "Wheel - Front Right");
+                    telemetry.addData("TRIANGLE:", "Wheel - Back Right");
+                    
                     telemetry.addData("FAILURE", "Motor " + motorName + " not found.");
                     telemetry.update();
                     sleep(500);
