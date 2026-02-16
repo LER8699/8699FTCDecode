@@ -52,7 +52,7 @@ public class BlueFarPedroAutonomous extends OpMode {
         panelsTelemetry.update(telemetry);
     }
 
- public static class Paths {
+public static class Paths {
     public PathChain InitialShot;
     public PathChain Path2;
     public PathChain CollectOne;
@@ -63,7 +63,6 @@ public class BlueFarPedroAutonomous extends OpMode {
     public PathChain Path8;
     public PathChain CollectThree;
     public PathChain ShootThree;
-    public PathChain Leave;
 
     public Paths(Follower follower) {
       InitialShot = follower.pathBuilder()
@@ -80,7 +79,7 @@ public class BlueFarPedroAutonomous extends OpMode {
           .addPath(
             new BezierLine(
               new Pose(64.844, 17.178),
-            new Pose(37.011, 35.102)
+            new Pose(64.677, 36.009)
             )
           )
           .setLinearHeadingInterpolation(Math.toRadians(115.5), Math.toRadians(180))
@@ -89,8 +88,8 @@ public class BlueFarPedroAutonomous extends OpMode {
       CollectOne = follower.pathBuilder()
           .addPath(
             new BezierLine(
-              new Pose(37.011, 35.102),
-            new Pose(12.619, 35.110)
+              new Pose(64.677, 36.009),
+            new Pose(12.165, 36.244)
             )
           )
           .setTangentHeadingInterpolation()
@@ -99,7 +98,7 @@ public class BlueFarPedroAutonomous extends OpMode {
       ShootOne = follower.pathBuilder()
           .addPath(
             new BezierLine(
-              new Pose(12.619, 35.110),
+              new Pose(12.165, 36.244),
             new Pose(64.918, 17.282)
             )
           )
@@ -110,7 +109,7 @@ public class BlueFarPedroAutonomous extends OpMode {
           .addPath(
             new BezierLine(
               new Pose(64.918, 17.282),
-            new Pose(35.603, 59.641)
+            new Pose(64.176, 59.187)
             )
           )
           .setLinearHeadingInterpolation(Math.toRadians(115.5), Math.toRadians(180))
@@ -119,7 +118,7 @@ public class BlueFarPedroAutonomous extends OpMode {
       CollectTwo = follower.pathBuilder()
           .addPath(
             new BezierLine(
-              new Pose(35.603, 59.641),
+              new Pose(64.176, 59.187),
             new Pose(15.973, 59.724)
             )
           )
@@ -140,7 +139,7 @@ public class BlueFarPedroAutonomous extends OpMode {
           .addPath(
             new BezierLine(
               new Pose(64.978, 17.031),
-            new Pose(36.535, 83.200)
+            new Pose(63.521, 83.200)
             )
           )
           .setLinearHeadingInterpolation(Math.toRadians(115.5), Math.toRadians(180))
@@ -149,7 +148,7 @@ public class BlueFarPedroAutonomous extends OpMode {
       CollectThree = follower.pathBuilder()
           .addPath(
             new BezierLine(
-              new Pose(36.535, 83.200),
+              new Pose(63.521, 83.200),
             new Pose(18.238, 83.104)
             )
           )
@@ -164,16 +163,6 @@ public class BlueFarPedroAutonomous extends OpMode {
             )
           )
           .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(115.5))
-          .build();
-
-      Leave = follower.pathBuilder()
-          .addPath(
-            new BezierLine(
-              new Pose(65.027, 17.517),
-            new Pose(56.287, 26.150)
-            )
-          )
-          .setTangentHeadingInterpolation()
           .build();
     }
   }
