@@ -16,8 +16,11 @@ import com.pedropathing.geometry.Pose;
 public class BlueFarPedroAutonomous extends OpMode {
   private TelemetryManager panelsTelemetry; // Panels Telemetry instance
   public Follower follower; // Pedro Pathing follower instance
+  private Timer pathTimer, actionTimer, opmodeTimer; // Pedro Pathing Timers
   private int pathState; // Current autonomous path state (state machine)
   private Paths paths; // Paths defined in the Paths class
+
+
 
   @Override
   public void init() {
