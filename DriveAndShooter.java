@@ -257,22 +257,16 @@ public class DriveAndShooter extends LinearOpMode {
                 
                 if (align) {
                     double turn = GetPefectTurn(xOffset);
-                    
                     leftFront.setVelocity(turn * MAX_SPEED_ON_WHEELS);
                     leftBack.setVelocity(turn * MAX_SPEED_ON_WHEELS);
                     rightFront.setVelocity(-turn * MAX_SPEED_ON_WHEELS);
                     rightBack.setVelocity(-turn * MAX_SPEED_ON_WHEELS);
-                    
-                    if (Math.abs(xOffset) < 1.0) {
-                        align = false;
-                        totalError = 0; // Reset for next time!
-                    }
-                    
                 } else {
-                    // prevent "Integral Windup"
+                    // Prevent integral windup when not aligning
                     totalError = 0;
                     lastError = 0;
                 }
+
                 
                 telemetry.addLine("=== FIELD POS ===");
                 telemetry.addData("X (m)", "%.3f", botpose.getPosition().x);
