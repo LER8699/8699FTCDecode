@@ -58,6 +58,12 @@ public class BlueFarPedroAutonomous extends OpMode {
     public PathChain Path3;
     public PathChain Path4;
 
+ public static class Paths {
+    public PathChain Path1;
+    public PathChain Path2;
+    public PathChain Path3;
+    public PathChain Path4;
+
     public Paths(Follower follower) {
       Path1 = follower.pathBuilder()
           .addPath(
@@ -92,8 +98,8 @@ public class BlueFarPedroAutonomous extends OpMode {
           .addPath(
             new BezierCurve(
               new Pose(60.499, 18.274),
-            new Pose(46.539, 38.586),
-            new Pose(18.937, 35.175)
+            new Pose(46.535, 38.582),
+            new Pose(18.257, 36.309)
             )
           )
           .setTangentHeadingInterpolation()
@@ -102,7 +108,7 @@ public class BlueFarPedroAutonomous extends OpMode {
       Path4 = follower.pathBuilder()
           .addPath(
             new BezierLine(
-              new Pose(18.937, 35.175),
+              new Pose(18.257, 36.309),
             new Pose(60.397, 18.381)
             )
           )
