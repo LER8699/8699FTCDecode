@@ -83,7 +83,7 @@ public class BlueClosePedroAuto extends OpMode {
 
     // Path definitions remain the same
    public static class Paths {
-    public PathChain ShootInitial;
+   public PathChain ShootInitial;
     public PathChain AlignOne;
     public PathChain CollectOne;
     public PathChain ShootOne;
@@ -94,42 +94,42 @@ public class BlueClosePedroAuto extends OpMode {
 
     public Paths(Follower follower) {
       ShootInitial = follower.pathBuilder()
-          .addPath(new BezierLine(new Pose(21.3, 122.2),new Pose(40.500, 100.000)))
+          .addPath(new BezierLine(new Pose(21.304, 122.293),new Pose(51.000, 92.000)))
           .setConstantHeadingInterpolation(Math.toRadians(135))
           .build();
 
       AlignOne = follower.pathBuilder()
-          .addPath(new BezierLine(new Pose(40.500, 100.000), new Pose(41.071, 82.839)))
+          .addPath(new BezierLine(new Pose(51.000, 92.000),new Pose(51.049, 83.293)))
           .setConstantHeadingInterpolation(Math.toRadians(180))
           .build();
 
       CollectOne = follower.pathBuilder()
-          .addPath(new BezierLine(new Pose(41.071, 82.839),new Pose(16.689, 82.765)))
+          .addPath(new BezierLine(new Pose(51.049, 83.293),new Pose(16.689, 82.765)))
           .setConstantHeadingInterpolation(Math.toRadians(180))
           .build();
 
       ShootOne = follower.pathBuilder()
-          .addPath(new BezierLine(new Pose(16.689, 82.765),new Pose(40.500, 100.000)))
+          .addPath(new BezierLine(new Pose(16.689, 82.765),new Pose(51.000, 92.000)))
           .setConstantHeadingInterpolation(Math.toRadians(140))
           .build();
 
       AlignTwo = follower.pathBuilder()
-          .addPath(new BezierLine(new Pose(40.500, 100.000),new Pose(40.146, 59.323)))
+          .addPath(new BezierLine(new Pose(51.000, 92.000),new Pose(51.031, 59.776)))
           .setLinearHeadingInterpolation(Math.toRadians(140), Math.toRadians(180))
           .build();
 
       CollectTwo = follower.pathBuilder()
-          .addPath(new BezierLine(new Pose(40.146, 59.323),new Pose(17.537, 59.723)))
+          .addPath(new BezierLine(new Pose(51.031, 59.776),new Pose(17.537, 59.723)))
           .setConstantHeadingInterpolation(Math.toRadians(180))
           .build();
 
       ShootTwo = follower.pathBuilder()
-          .addPath(new BezierLine(new Pose(17.537, 59.723),new Pose(40.500, 100.000)))
+          .addPath(new BezierLine(new Pose(17.537, 59.723),new Pose(51.000, 92.000)))
           .setConstantHeadingInterpolation(Math.toRadians(140))
           .build();
 
       Leave = follower.pathBuilder()
-          .addPath(new BezierLine(new Pose(40.500, 100.000),new Pose(37.858, 77.863)))
+          .addPath(new BezierLine(new Pose(51.000, 92.000),new Pose(37.858, 77.863)))
           .setTangentHeadingInterpolation()
           .build();
     }
