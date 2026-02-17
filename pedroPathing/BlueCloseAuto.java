@@ -55,6 +55,7 @@ public class BlueCloseAuto extends OpMode {
 public static class Paths {
     public PathChain Path1;
     public PathChain CollectOne;
+    public PathChain ShootOne;
 
     public Paths(Follower follower) {
       Path1 = follower.pathBuilder()
@@ -76,6 +77,16 @@ public static class Paths {
           )
           .setTangentHeadingInterpolation()
           .build();
+
+      ShootOne = follower.pathBuilder()
+          .addPath(
+            new BezierLine(
+              new Pose(19.301, 83.973),
+            new Pose(60.087, 84.087)
+            )
+          )
+          .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(135))
+          .build();
     }
   }
 
@@ -89,6 +100,12 @@ public static class Paths {
                 if (!follower.isbusy()){
                 follower.followPath(paths.CollectOne, 0.5, true); // path name, max power for path = 0.5, holdEnd (defaults to true)
                 setPathState(2);
+                }
+                break;
+            case 2:
+                if (!follower.isbusy()){
+                    follower.followPath(paths.ShootOne);
+                    setPathState(3);
                 }
                 break;
         }
