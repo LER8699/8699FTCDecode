@@ -54,6 +54,7 @@ public class BlueCloseAuto extends OpMode {
 
 public static class Paths {
     public PathChain Path1;
+    public PathChain CollectOne;
 
     public Paths(Follower follower) {
       Path1 = follower.pathBuilder()
