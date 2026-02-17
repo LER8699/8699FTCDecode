@@ -86,7 +86,7 @@ public static class Paths {
                 setPathState(1);
                 break;
             case 1:
-                if follower.isbusy(){
+                if (!follower.isbusy()){
                 follower.followPath(paths.CollectOne, 0.5, true); // path name, max power for path = 0.5, holdEnd (defaults to true)
                 setPathState(2);
                 }
