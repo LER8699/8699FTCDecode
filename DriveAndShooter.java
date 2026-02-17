@@ -171,10 +171,16 @@ public class DriveAndShooter extends LinearOpMode {
             }
 
             // Driver Speed Toggle (GP1 Bumpers)
-            if (gamepad1.right_bumper && !lastRB1) driverSpeedPower = Math.min(1.0, driverSpeedPower + 0.1);
-            if (gamepad1.left_bumper && !lastLB) driverSpeedPower = Math.max(0.1, driverSpeedPower - 0.1);
+            // Only adjust speed if bumpers are NOT being used for AprilTag selection
+            if (!gamepad1.left_bumper && !gamepad1.right_bumper) {
+                if (gamepad1.right_bumper && !lastRB1) driverSpeedPower = Math.min(1.0, driverSpeedPower + 0.1);
+                if (gamepad1.left_bumper && !lastLB) driverSpeedPower = Math.max(0.1, driverSpeedPower - 0.1);
+            }
+            
+            // Always update edge-detect states
             lastRB1 = gamepad1.right_bumper;
             lastLB = gamepad1.left_bumper;
+
 
             // --- 4. Shooter Presets & Manual Adjust (GP2) ---
 
