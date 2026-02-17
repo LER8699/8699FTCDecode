@@ -107,7 +107,7 @@ public class DriveAndShooter extends LinearOpMode {
         //boolean lastGamepad1X = false;
 
         waitForStart();
-        while (opModeIs()) {
+        while (opModeIsActive()) {
 
             // Toggle align with B button (GP1)
             if (gamepad1.b && !lastBPressed) {
@@ -149,12 +149,14 @@ public class DriveAndShooter extends LinearOpMode {
                 y = rotY;
             } */
 
-            double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1.0);
-
-            leftFront.setVelocity(((y + x + rx) / denominator) * MAX_SPEED_ON_WHEELS * driverSpeedPower);
-            leftBack.setVelocity(((y - x + rx) / denominator) * MAX_SPEED_ON_WHEELS * driverSpeedPower);
-            rightFront.setVelocity(((y - x - rx) / denominator)* MAX_SPEED_ON_WHEELS * driverSpeedPower);
-            rightBack.setVelocity(((y + x - rx) / denominator)* MAX_SPEED_ON_WHEELS * driverSpeedPower);
+            if (!align) {
+                double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1.0);
+            
+                leftFront.setVelocity(((y + x + rx) / denominator) * MAX_SPEED_ON_WHEELS * driverSpeedPower);
+                leftBack.setVelocity(((y - x + rx) / denominator) * MAX_SPEED_ON_WHEELS * driverSpeedPower);
+                rightFront.setVelocity(((y - x - rx) / denominator)* MAX_SPEED_ON_WHEELS * driverSpeedPower);
+                rightBack.setVelocity(((y + x - rx) / denominator)* MAX_SPEED_ON_WHEELS * driverSpeedPower);
+            }
 
             if (gamepad1.left_trigger > 0.5) {
                 driverSpeedPower = 0.3;
