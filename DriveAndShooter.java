@@ -103,11 +103,23 @@ public class DriveAndShooter extends LinearOpMode {
         boolean lastLB = false, lastRB1 = false; // Driver 1 bumpers
         boolean lastUp = false, lastDown = false;
         boolean shooterOn = false, wasAPressed = false; //Driver 2
+        boolean lastBPressed = false; // GP1 B toggle for align
         //boolean lastGamepad1X = false;
 
         waitForStart();
+        while (opModeIs()) {
 
-        while (opModeIsActive()) {
+            // Toggle align with B button (GP1)
+            if (gamepad1.b && !lastBPressed) {
+                align = !align;
+            
+            // Reset PID when toggling
+                totalError = 0;
+                lastError = 0;
+            }
+            lastBPressed = gamepad1.b;
+
+            
             // --- 3. Driving Logic (GP1) ---
 
             // Toggle Field Relative with BACK button
@@ -241,16 +253,6 @@ public class DriveAndShooter extends LinearOpMode {
                         TargetArea = tag.getTargetArea();
     
                         botpose = tag.getRobotPoseTargetSpace();
-                        
-                        // Toggle align with B button (GP1)
-                        if (gamepad1.b && !lastBPressed) {
-                            align = !align;
-                        
-                            // Reset PID when toggling
-                            totalError = 0;
-                            lastError = 0;
-                        }
-                        lastBPressed = gamepad1.b;
 
                     }
                 }
