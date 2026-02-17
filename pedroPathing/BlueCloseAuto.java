@@ -63,7 +63,7 @@ public static class Paths {
             new Pose(58.948, 84.529)
             )
           )
-          .setConstantHeadingInterpolation(Math.toRadians(145))
+          .setConstantHeadingInterpolation(Math.toRadians(135))
           .build();
     }
   }
