@@ -47,8 +47,10 @@ public class DriveAndShooter extends LinearOpMode {
     int id_needed = 0;
     
     boolean align = false;
-    
     double totalError = 0.0;
+
+    double turnSign = 1.0;   // +1 normal, -1 inverted
+    boolean lastX = false;   // X button toggle state
 
     @Override
     public void runOpMode() {
@@ -119,6 +121,15 @@ public class DriveAndShooter extends LinearOpMode {
             }
             lastBPressed = gamepad1.b;
 
+            // Toggle turn direction
+            if (gamepad1.x && !lastX) {
+                turnSign *= -1.0;
+                totalError = 0;
+                lastError = 0;
+            }
+            lastX = gamepad1.x;
+
+            
             double xOffset = 0.0;
             double yOffset = 0.0;
             double TargetArea = 0.0;
@@ -154,6 +165,20 @@ public class DriveAndShooter extends LinearOpMode {
                 y = rotY;
             } */
 
+            // Update speed FIRST
+            if (gamepad1.left_trigger > 0.5) {
+                driverSpeedPower = 0.3;
+            } else if (gamepad1.right_trigger > 0.5) {
+                driverSpeedPower = 0.8;
+            }
+            
+            // Fine-adjust speed (bumpers)
+            if (gamepad1.right_bumper && !lastRB1) driverSpeedPower = Math.min(1.0, driverSpeedPower + 0.1);
+            if (gamepad1.left_bumper && !lastLB) driverSpeedPower = Math.max(0.1, driverSpeedPower - 0.1);
+            lastRB1 = gamepad1.right_bumper;
+            lastLB = gamepad1.left_bumper;
+            
+            // NOW drive using the updated driverSpeedPower
             if (!align) {
                 double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1.0);
             
@@ -164,22 +189,6 @@ public class DriveAndShooter extends LinearOpMode {
             }
 
 
-            if (gamepad1.left_trigger > 0.5) {
-                driverSpeedPower = 0.3;
-            } else if (gamepad1.right_trigger > 0.5) {
-                driverSpeedPower = 0.8;
-            }
-
-            // Driver Speed Toggle (GP1 Bumpers)
-            // Only adjust speed if bumpers are NOT being used for AprilTag selection
-            if (!gamepad1.left_bumper && !gamepad1.right_bumper) {
-                if (gamepad1.right_bumper && !lastRB1) driverSpeedPower = Math.min(1.0, driverSpeedPower + 0.1);
-                if (gamepad1.left_bumper && !lastLB) driverSpeedPower = Math.max(0.1, driverSpeedPower - 0.1);
-            }
-            
-            // Always update edge-detect states
-            lastRB1 = gamepad1.right_bumper;
-            lastLB = gamepad1.left_bumper;
 
 
             // --- 4. Shooter Presets & Manual Adjust (GP2) ---
@@ -247,11 +256,13 @@ public class DriveAndShooter extends LinearOpMode {
                 
                 List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
 
-                if (gamepad1.left_bumper) {
+                // Choose which tag you want WITHOUT stealing bumpers from speed
+                if (gamepad1.dpad_left) {
                     id_needed = 20;
-                } else if(gamepad1.right_bumper) {
+                } else if (gamepad1.dpad_right) {
                     id_needed = 24;
                 }
+
                 
                 for (LLResultTypes.FiducialResult tag : fiducials) {
                     if (tag.getFiducialId() == id_needed) {
@@ -289,8 +300,8 @@ public class DriveAndShooter extends LinearOpMode {
                 double xDrive = gamepad1.left_stick_x;
                 double rxDrive = gamepad1.right_stick_x;
             
-                if (foundTag) {
-                    rxDrive = GetPefectTurn(xOffset);
+                if (foundTag && id_needed != 0) {
+                    rxDrive = turnSign * GetPefectTurn(xOffset);
                 } else {
                     // Tag lost → driver keeps control, PID stays clean
                     totalError = 0;
@@ -309,6 +320,10 @@ public class DriveAndShooter extends LinearOpMode {
                         * MAX_SPEED_ON_WHEELS * driverSpeedPower);
                 rightBack.setVelocity(((yDrive + xDrive - rxDrive) / denominator)
                         * MAX_SPEED_ON_WHEELS * driverSpeedPower);
+            }
+            else {
+                totalError = 0;
+                lastError = 0;
             }
 
 
