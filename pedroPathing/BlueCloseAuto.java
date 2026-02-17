@@ -74,15 +74,6 @@ public static class Paths {
                 follower.followPath(paths.Path1);
                 setPathState(1);
                 break;
-            case 1:
-                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                if (!follower.isBusy()) {
-                    /* Score Preload */
-                    /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
-                    follower.followPath(paths.Path2);
-                    setPathState(-1);
-                }
-                break;
         }
     }
 
