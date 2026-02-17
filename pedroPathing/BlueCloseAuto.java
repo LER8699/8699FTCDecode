@@ -82,45 +82,58 @@ public class BlueClosePedroAuto extends OpMode {
     }
 
     // Path definitions remain the same
-    public static class Paths {
-        public PathChain ShootInitial, CollectOne, ShootOne, AlignTwo, CollectTwo, ShootTwo, Leave;
-        public Paths(Follower follower) {
-            ShootInitial = follower.pathBuilder()
-                    .addPath(new BezierLine(new Pose(21.3, 122.2), new Pose(58.948, 84.529)))
-                    .setConstantHeadingInterpolation(Math.toRadians(135))
-                    .build();
+   public static class Paths {
+    public PathChain ShootInitial;
+    public PathChain AlignOne;
+    public PathChain CollectOne;
+    public PathChain ShootOne;
+    public PathChain AlignTwo;
+    public PathChain CollectTwo;
+    public PathChain ShootTwo;
+    public PathChain Leave;
 
-            CollectOne = follower.pathBuilder()
-                    .addPath(new BezierLine(new Pose(58.948, 84.529), new Pose(19.301, 83.973)))
-                    .setTangentHeadingInterpolation()
-                    .build();
-        
-            ShootOne = follower.pathBuilder()
-                    .addPath(new BezierLine(new Pose(19.301, 83.973),new Pose(59.855, 84.076)))
-                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(135))
-                    .build();
-        
-            AlignTwo = follower.pathBuilder()
-                    .addPath(new BezierLine(new Pose(59.855, 84.076),new Pose(59.953, 59.573)))
-                    .setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(180))
-                    .build();
-        
-            CollectTwo = follower.pathBuilder()
-                    .addPath(new BezierLine(new Pose(59.953, 59.573),new Pose(19.301, 59.751)))
-                    .setTangentHeadingInterpolation()
-                    .build();
-        
-            ShootTwo = follower.pathBuilder()
-                    .addPath(new BezierLine(new Pose(19.301, 59.751),new Pose(59.855, 84.076)))
-                    .setConstantHeadingInterpolation(Math.toRadians(135))
-                    .build();
-        
-            Leave = follower.pathBuilder()
-                    .addPath(new BezierLine(new Pose(59.855, 84.076),new Pose(46.024, 70.178)))
-                    .setTangentHeadingInterpolation()
-                    .build();
-        }
+    public Paths(Follower follower) {
+      ShootInitial = follower.pathBuilder()
+          .addPath(new BezierLine(new Pose(21.3, 122.2),new Pose(40.500, 100.000)))
+          .setConstantHeadingInterpolation(Math.toRadians(135))
+          .build();
+
+      AlignOne = follower.pathBuilder()
+          .addPath(new BezierLine(new Pose(40.500, 100.000), new Pose(41.071, 82.839)))
+          .setConstantHeadingInterpolation(Math.toRadians(180))
+          .build();
+
+      CollectOne = follower.pathBuilder()
+          .addPath(new BezierLine(new Pose(41.071, 82.839),new Pose(16.689, 82.765)))
+          .setConstantHeadingInterpolation(Math.toRadians(180))
+          .build();
+
+      ShootOne = follower.pathBuilder()
+          .addPath(new BezierLine(new Pose(16.689, 82.765),new Pose(40.500, 100.000)))
+          .setConstantHeadingInterpolation(Math.toRadians(140))
+          .build();
+
+      AlignTwo = follower.pathBuilder()
+          .addPath(new BezierLine(new Pose(40.500, 100.000),new Pose(40.146, 59.323)))
+          .setLinearHeadingInterpolation(Math.toRadians(140), Math.toRadians(180))
+          .build();
+
+      CollectTwo = follower.pathBuilder()
+          .addPath(new BezierLine(new Pose(40.146, 59.323),new Pose(17.537, 59.723)))
+          .setConstantHeadingInterpolation(Math.toRadians(180))
+          .build();
+
+      ShootTwo = follower.pathBuilder()
+          .addPath(new BezierLine(new Pose(17.537, 59.723),new Pose(40.500, 100.000)))
+          .setConstantHeadingInterpolation(Math.toRadians(140))
+          .build();
+
+      Leave = follower.pathBuilder()
+          .addPath(new BezierLine(new Pose(40.500, 100.000),new Pose(37.858, 77.863)))
+          .setTangentHeadingInterpolation()
+          .build();
     }
+  }
 
     public void autonomousPathUpdate() {
         double targetVelocity = getVelocityFromDistance();
