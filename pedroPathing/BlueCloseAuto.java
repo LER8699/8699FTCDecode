@@ -83,9 +83,9 @@ public class BlueClosePedroAuto extends OpMode {
 
     // Path definitions remain the same
     public static class Paths {
-        public PathChain Path1, CollectOne, ShootOne;
+        public PathChain ShootInitial, CollectOne, ShootOne, AlignTwo,CollectTwo;
         public Paths(Follower follower) {
-            Path1 = follower.pathBuilder()
+            ShootInital = follower.pathBuilder()
                     .addPath(new BezierLine(new Pose(21.3, 122.2), new Pose(58.948, 84.529)))
                     .setConstantHeadingInterpolation(Math.toRadians(135))
                     .build();
@@ -99,6 +99,16 @@ public class BlueClosePedroAuto extends OpMode {
                     .addPath(new BezierLine(new Pose(19.301, 83.973), new Pose(60.087, 84.087)))
                     .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(135))
                     .build();
+            
+            AlignTwo = follower.pathBuilder()
+                      .addPath(new BezierLine(new Pose(60.087, 84.087),new Pose(59.953, 59.573)))
+                      .setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(180))
+                      .build();
+
+            CollectTwo = follower.pathBuilder()
+                      .addPath(new BezierLine(new Pose(59.953, 59.573),new Pose(19.300, 59.751)))
+                      .setTangentHeadingInterpolation()
+                      .build();
         }
     }
 
@@ -113,7 +123,7 @@ public class BlueClosePedroAuto extends OpMode {
             case 0:
                 // Start warming up shooter immediately
                 shooter.setVelocity(targetVelocity);
-                follower.followPath(paths.Path1);
+                follower.followPath(paths.ShootInital);
                 setPathState(1);
                 break;
 
