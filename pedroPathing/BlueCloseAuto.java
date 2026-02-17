@@ -59,7 +59,7 @@ public static class Paths {
       Path1 = follower.pathBuilder()
           .addPath(
             new BezierLine(
-              new Pose(20.850, 123.200),
+              new Pose(21.3, 122.2),
             new Pose(58.948, 84.529)
             )
           )
