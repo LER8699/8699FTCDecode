@@ -38,19 +38,17 @@ public class DriveAndShooter extends LinearOpMode {
 
     final static double POWER_ITERATE_STEP = 50.0;
     final static double MAX_VELOCITY = 2800.0;
-    
-    final static double MAX_SPEED_ON_WHEELS = 2580;
-    
-    int lastVelocity = 0;
-    
-    double lastError = 0.0;
-    int id_needed = 0;
-    
-    boolean align = false;
-    double totalError = 0.0;
 
-    double turnSign = 1.0;   // +1 normal, -1 inverted
-    boolean lastX = false;   // X button toggle state
+    final static double MAX_SPEED_ON_WHEELS = 2580;
+
+    int lastVelocity = 0;
+
+    double lastError = 0.0;
+    int id_needed = 20;
+
+    boolean align = false;
+
+    double totalError = 0.0;
 
     @Override
     public void runOpMode() {
@@ -114,28 +112,19 @@ public class DriveAndShooter extends LinearOpMode {
             // Toggle align with B button (GP1)
             if (gamepad1.b && !lastBPressed) {
                 align = !align;
-            
+
             // Reset PID when toggling
                 totalError = 0;
                 lastError = 0;
             }
             lastBPressed = gamepad1.b;
 
-            // Toggle turn direction
-            if (gamepad1.x && !lastX) {
-                turnSign *= -1.0;
-                totalError = 0;
-                lastError = 0;
-            }
-            lastX = gamepad1.x;
-
-            
             double xOffset = 0.0;
             double yOffset = 0.0;
             double TargetArea = 0.0;
             boolean foundTag = false;
 
-            
+
             // --- 3. Driving Logic (GP1) ---
 
             // Toggle Field Relative with BACK button
@@ -149,10 +138,6 @@ public class DriveAndShooter extends LinearOpMode {
                 //imu.resetYaw();
             //}
 
-            double y = -gamepad1.left_stick_y;
-            double x = gamepad1.left_stick_x;
-            double rx = gamepad1.right_stick_x;
-
             /* if (fieldRelative) {
                 // Field-Centric Conversion
                 double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
@@ -164,21 +149,25 @@ public class DriveAndShooter extends LinearOpMode {
                 x = rotX;
                 y = rotY;
             } */
-
-            // Update speed FIRST
+            
+            // Update speed FIRST (must be before setVelocity)
+            double y = -gamepad1.left_stick_y;
+            double x = gamepad1.left_stick_x;
+            double rx = gamepad1.right_stick_x;
+            
+            // Update speed FIRST (must be before setVelocity)
             if (gamepad1.left_trigger > 0.5) {
                 driverSpeedPower = 0.3;
             } else if (gamepad1.right_trigger > 0.5) {
                 driverSpeedPower = 0.8;
             }
             
-            // Fine-adjust speed (bumpers)
+            // Driver Speed fine adjust (bumpers)
             if (gamepad1.right_bumper && !lastRB1) driverSpeedPower = Math.min(1.0, driverSpeedPower + 0.1);
-            if (gamepad1.left_bumper && !lastLB) driverSpeedPower = Math.max(0.1, driverSpeedPower - 0.1);
+            if (gamepad1.left_bumper && !lastLB)  driverSpeedPower = Math.max(0.1, driverSpeedPower - 0.1);
             lastRB1 = gamepad1.right_bumper;
-            lastLB = gamepad1.left_bumper;
+            lastLB  = gamepad1.left_bumper;
             
-            // NOW drive using the updated driverSpeedPower
             if (!align) {
                 double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1.0);
             
@@ -187,8 +176,6 @@ public class DriveAndShooter extends LinearOpMode {
                 rightFront.setVelocity(((y - x - rx) / denominator) * MAX_SPEED_ON_WHEELS * driverSpeedPower);
                 rightBack.setVelocity(((y + x - rx) / denominator) * MAX_SPEED_ON_WHEELS * driverSpeedPower);
             }
-
-
 
 
             // --- 4. Shooter Presets & Manual Adjust (GP2) ---
@@ -248,70 +235,70 @@ public class DriveAndShooter extends LinearOpMode {
             } else {
                 agitator.setPower(0);
             }
-            
+
             LLResult result = limelight.getLatestResult();
-            
+
             if (result != null && result.isValid()) {
                 Pose3D botpose = result.getBotpose();
-                
+
                 List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
 
-                // Choose which tag you want WITHOUT stealing bumpers from speed
+                // AprilTag selection (DPAD): Blue = left = 20, Red = right = 24
                 if (gamepad1.dpad_left) {
                     id_needed = 20;
                 } else if (gamepad1.dpad_right) {
                     id_needed = 24;
                 }
 
-                
                 for (LLResultTypes.FiducialResult tag : fiducials) {
                     if (tag.getFiducialId() == id_needed) {
                         // 3. Select values from this specific "row"
                         foundTag = true;
                         xOffset = tag.getTargetXDegrees();
                         yOffset = tag.getTargetYDegrees();
-    
+
                         TargetArea = tag.getTargetArea();
-    
+
                         botpose = tag.getRobotPoseTargetSpace();
 
                     }
                 }
 
 
-                
+
                 telemetry.addLine("=== FIELD POS ===");
                 telemetry.addData("X (m)", "%.3f", botpose.getPosition().x);
                 telemetry.addData("Y (m)", "%.3f", botpose.getPosition().y);
                 telemetry.addData("Yaw", "%.2f°", botpose.getOrientation().getYaw(AngleUnit.DEGREES));
-    
+
                 telemetry.addLine("=== TARGET DATA ===");
                 telemetry.addData("tx", "%.2f°", xOffset);
                 telemetry.addData("ty", "%.2f°", yOffset);
-    
+
                 telemetry.addLine("=== TARGET RANGE ===");
                 telemetry.addData("Target Area: ", TargetArea);
-                
-                
+
+
             }
 
             if (align) {
                 double yDrive = -gamepad1.left_stick_y;
                 double xDrive = gamepad1.left_stick_x;
                 double rxDrive = gamepad1.right_stick_x;
-            
-                if (foundTag && id_needed != 0) {
+
+                if (foundTag) {
+                    // Blue (20) and Red (24) can require opposite turn direction depending on camera/pose math
+                    double turnSign = (id_needed == 20) ? -1.0 : 1.0;  // if blue still wrong, flip these
                     rxDrive = turnSign * GetPefectTurn(xOffset);
                 } else {
-                    // Tag lost → driver keeps control, PID stays clean
                     totalError = 0;
                     lastError = 0;
                 }
-            
+
                 double denominator = Math.max(
                         Math.abs(yDrive) + Math.abs(xDrive) + Math.abs(rxDrive), 1.0
                 );
-            
+
                 leftFront.setVelocity(((yDrive + xDrive + rxDrive) / denominator)
                         * MAX_SPEED_ON_WHEELS * driverSpeedPower);
                 leftBack.setVelocity(((yDrive - xDrive + rxDrive) / denominator)
@@ -320,10 +307,6 @@ public class DriveAndShooter extends LinearOpMode {
                         * MAX_SPEED_ON_WHEELS * driverSpeedPower);
                 rightBack.setVelocity(((yDrive + xDrive - rxDrive) / denominator)
                         * MAX_SPEED_ON_WHEELS * driverSpeedPower);
-            }
-            else {
-                totalError = 0;
-                lastError = 0;
             }
 
 
@@ -379,7 +362,7 @@ public class DriveAndShooter extends LinearOpMode {
 
         //limelight.stop();
     }
-    
+
     public double getDistanceFromAprilTag() {
         LLResult result = limelight.getLatestResult();
 
@@ -399,19 +382,19 @@ public class DriveAndShooter extends LinearOpMode {
 
         return foundDistance;
     }
-    
+
     public double GetPefectTurn(double xOffset) {
         boolean aligned = false;
-        
+
         double pTerm = 0.0;
         double iTerm = 0.0;
         double dTerm = 0.0;
-        
+
         // Constants
         double kP = 0.045;
         double kI = 0.00001;
         double kD = 0.24;
-        
+
         telemetry.addData("P", pTerm);
         telemetry.addData("I", iTerm);
         telemetry.addData("D", dTerm);
@@ -436,17 +419,17 @@ public class DriveAndShooter extends LinearOpMode {
 
         // Exit condition
         return power;
-        
+
     }
-    
+
     public int getVelocityFromDistance() {
         int calculatedVelocity = 0;
         double distanceFromDepot = getDistanceFromAprilTag();
-        
+
         if (distanceFromDepot != 0.0) {
             calculatedVelocity = (int) ((1.75534 * distanceFromDepot) + 1242.90722);
         }
-        
+
         return calculatedVelocity;
     }
 }
