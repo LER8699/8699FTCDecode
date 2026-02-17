@@ -12,7 +12,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.geometry.Pose;
 
-@Autonomous(name = "BLUE: PedroPathing Far Autonomous", group = "Autonomous")
+@Autonomous(name = "BLUE: Close Autonomous", group = "Autonomous")
 @Configurable // Panels
 public class BlueCloseAuto extends OpMode {
     private TelemetryManager panelsTelemetry; // Panels Telemetry instance
@@ -27,7 +27,7 @@ public class BlueCloseAuto extends OpMode {
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
 
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(21.3, 112.2, Math.toRadians(135)));
+        follower.setStartingPose(new Pose(21.3, 122.2, Math.toRadians(135)));
 
         paths = new Paths(follower); // Build paths
 
