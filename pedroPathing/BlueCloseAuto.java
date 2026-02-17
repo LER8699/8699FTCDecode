@@ -77,8 +77,6 @@ public static class Paths {
           .build();
     }
   }
-    }
-  }
 
     public void autonomousPathUpdate() {
         switch (pathState) {
