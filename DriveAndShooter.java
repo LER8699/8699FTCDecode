@@ -45,11 +45,15 @@ public class DriveAndShooter extends LinearOpMode {
 
     double lastError = 0.0;
     int id_needed = 20;
+    int lastIdNeeded = 20;
 
     boolean align = false;
-
     double totalError = 0.0;
-
+    
+    // Manual per-tag turn signs
+    double turnSignBlue = 1.0; // tag 20
+    double turnSignRed  = 1.0; // tag 24
+    boolean lastX = false;
     @Override
     public void runOpMode() {
         // --- 1. Hardware Mapping ---
@@ -112,12 +116,26 @@ public class DriveAndShooter extends LinearOpMode {
             // Toggle align with B button (GP1)
             if (gamepad1.b && !lastBPressed) {
                 align = !align;
-
-            // Reset PID when toggling
+            
+                // Reset PID when toggling align
                 totalError = 0;
                 lastError = 0;
             }
             lastBPressed = gamepad1.b;
+            
+            // Manual turn flip per tag (X button)
+            if (gamepad1.x && !lastX) {
+                if (id_needed == 20) {
+                    turnSignBlue *= -1.0;
+                } else if (id_needed == 24) {
+                    turnSignRed *= -1.0;
+                }
+            
+                // reset PID so it doesn’t snap
+                totalError = 0;
+                lastError = 0;
+            }
+            lastX = gamepad1.x;
 
             double xOffset = 0.0;
             double yOffset = 0.0;
@@ -249,6 +267,14 @@ public class DriveAndShooter extends LinearOpMode {
                 } else if (gamepad1.dpad_right) {
                     id_needed = 24;
                 }
+                
+                // RESET PID when switching tags
+                if (id_needed != lastIdNeeded) {
+                    totalError = 0;
+                    lastError = 0;
+                    lastIdNeeded = id_needed;
+                }
+
 
                 for (LLResultTypes.FiducialResult tag : fiducials) {
                     if (tag.getFiducialId() == id_needed) {
@@ -288,8 +314,8 @@ public class DriveAndShooter extends LinearOpMode {
 
                 if (foundTag) {
                     // Blue (20) and Red (24) can require opposite turn direction depending on camera/pose math
-                    double turnSign = (id_needed == 20) ? -1.0 : 1.0;  // if blue still wrong, flip these
-                    rxDrive = turnSign * GetPefectTurn(xOffset);
+                    double sign = (id_needed == 20) ? turnSignBlue : turnSignRed;
+                    rxDrive = sign * GetPefectTurn(xOffset);
                 } else {
                     totalError = 0;
                     lastError = 0;
