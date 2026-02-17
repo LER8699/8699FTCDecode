@@ -1,4 +1,5 @@
 package org.firstinspires.ftc.teamcode.pedroPathing;
+
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -11,29 +12,60 @@ import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.geometry.Pose;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.hardware.limelightvision.LLResult;
 
 @Autonomous(name = "BLUE: Close Autonomous", group = "Autonomous")
-@Configurable // Panels
-public class BlueCloseAuto extends OpMode {
-    private TelemetryManager panelsTelemetry; // Panels Telemetry instance
-    public Follower follower; // Pedro Pathing follower instance
-    private Timer pathTimer, actionTimer, opmodeTimer; // Pedro Pathing Timers
-    private int pathState; // Current autonomous path state (state machine)
-    private Paths paths; // Paths defined in the Paths class
+@Configurable
+public class BlueClosePedroAuto extends OpMode {
+    private TelemetryManager panelsTelemetry;
+    public Follower follower;
+    private Timer pathTimer, actionTimer;
+    private int pathState;
+    private Paths paths;
 
+    private DcMotor intake;
+    private DcMotorEx shooter;
+    private DcMotor agitator;
+    private Limelight3A limelight;
+
+    // Shooter Constants
+    final static double F = 13.5354;
+    final static double P = 300.0;
+    final static double SHOOTER_TARGET = 1412.0;
 
     @Override
     public void init() {
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
 
+        // Hardware Mapping
+        intake = hardwareMap.get(DcMotor.class, "intake");
+        shooter = hardwareMap.get(DcMotorEx.class, "shooter");
+        agitator = hardwareMap.get(DcMotor.class, "agitator");
+        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+
+        // Motor Directions and Modes
+        intake.setDirection(DcMotor.Direction.FORWARD);
+        shooter.setDirection(DcMotor.Direction.REVERSE);
+        agitator.setDirection(DcMotor.Direction.REVERSE);
+
+        shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        PIDFCoefficients pidfCoefficients = new PIDFCoefficients(P, 0, 0, F);
+        shooter.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
+
+        // Limelight Setup
+        limelight.pipelineSwitch(0);
+        limelight.start();
+
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(new Pose(21.3, 122.2, Math.toRadians(135)));
 
-        paths = new Paths(follower); // Build paths
-
+        paths = new Paths(follower);
         pathTimer = new Timer();
-        opmodeTimer = new Timer();
-        opmodeTimer.resetTimer();
+        actionTimer = new Timer();
 
         panelsTelemetry.debug("Status", "Initialized");
         panelsTelemetry.update(telemetry);
@@ -41,69 +73,67 @@ public class BlueCloseAuto extends OpMode {
 
     @Override
     public void loop() {
-        follower.update(); // Update Pedro Pathing
-        autonomousPathUpdate(); // Update autonomous state machine
+        follower.update();
+        autonomousPathUpdate();
 
-        // Log values to Panels and Driver Station
         panelsTelemetry.debug("Path State", pathState);
-        panelsTelemetry.debug("X", follower.getPose().getX());
-        panelsTelemetry.debug("Y", follower.getPose().getY());
-        panelsTelemetry.debug("Heading", follower.getPose().getHeading());
+        panelsTelemetry.debug("Shooter Velocity", shooter.getVelocity());
         panelsTelemetry.update(telemetry);
     }
 
-public static class Paths {
-    public PathChain Path1;
-    public PathChain CollectOne;
-    public PathChain ShootOne;
+    // Path definitions remain the same
+    public static class Paths {
+        public PathChain Path1, CollectOne, ShootOne;
+        public Paths(Follower follower) {
+            Path1 = follower.pathBuilder()
+                    .addPath(new BezierLine(new Pose(21.3, 122.2), new Pose(58.948, 84.529)))
+                    .setConstantHeadingInterpolation(Math.toRadians(135))
+                    .build();
 
-    public Paths(Follower follower) {
-      Path1 = follower.pathBuilder()
-          .addPath(
-            new BezierLine(
-              new Pose(21.3, 122.2),
-            new Pose(58.948, 84.529)
-            )
-          )
-          .setConstantHeadingInterpolation(Math.toRadians(135))
-          .build();
+            CollectOne = follower.pathBuilder()
+                    .addPath(new BezierLine(new Pose(59.855, 84.076), new Pose(19.301, 83.973)))
+                    .setTangentHeadingInterpolation()
+                    .build();
 
-     CollectOne = follower.pathBuilder()
-          .addPath(
-            new BezierLine(
-              new Pose(59.855, 84.076),
-            new Pose(19.301, 83.973)
-            )
-          )
-          .setTangentHeadingInterpolation()
-          .build();
-
-      ShootOne = follower.pathBuilder()
-          .addPath(
-            new BezierLine(
-              new Pose(19.301, 83.973),
-            new Pose(60.087, 84.087)
-            )
-          )
-          .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(135))
-          .build();
+            ShootOne = follower.pathBuilder()
+                    .addPath(new BezierLine(new Pose(19.301, 83.973), new Pose(60.087, 84.087)))
+                    .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(135))
+                    .build();
+        }
     }
-  }
 
     public void autonomousPathUpdate() {
+        double targetVelocity = getVelocityFromDistance();
+
+        if (targetVelocity != 0) {
+            shooter.setVelocity(targetVelocity);
+        }
+
         switch (pathState) {
             case 0:
-                follower.followPath(paths.Path1); // defaults max power to 1, holdEnd (defaults to true)
+                // Start warming up shooter immediately
+                shooter.setVelocity(targetVelocity);
+                follower.followPath(paths.Path1);
                 setPathState(1);
                 break;
+
             case 1:
-                if (!follower.isBusy()){
-                follower.followPath(paths.CollectOne, 0.5, true); // path name, max power for path = 0.5, holdEnd (defaults to true)
-                setPathState(2);
+                // Wait for path and enough time to pass
+                if (!follower.isBusy() && !(pathTimer.getElapsedTimeSeconds() >= 3.5)) {
+                    agitator.setPower(1);
+                }
+
+                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() >= 3.5) {
+                    agitator.setPower(0);
+                    intake.setPower(1);
+                    follower.followPath(paths.CollectOne, 0.5, true);
+                    setPathState(2);
                 }
                 break;
+
             case 2:
-                if (!follower.isBusy()){
+                if (!follower.isBusy()) {
+                    intake.setPower(0);
                     follower.followPath(paths.ShootOne);
                     setPathState(3);
                 }
@@ -111,11 +141,28 @@ public static class Paths {
         }
     }
 
-    /**
-     * These change the states of the paths and actions. It will also reset the timers of the individual switches
-     **/
     public void setPathState(int pState) {
         pathState = pState;
         pathTimer.resetTimer();
+    }
+
+    public double getDistanceFromAprilTag() {
+        LLResult result = limelight.getLatestResult();
+        if (result != null && result.isValid()) {
+            double ty = result.getTy();
+            double mountAngle = 20.0;
+            double lensHeight = 23.0;
+            double tagHeight = 71.12;
+            return (tagHeight - lensHeight) / Math.tan(Math.toRadians(mountAngle + ty));
+        }
+        return 0.0;
+    }
+
+    public int getVelocityFromDistance() {
+        double dist = getDistanceFromAprilTag();
+        if (dist != 0.0) {
+            return (int) ((1.75534 * dist) + 1242.90722);
+        }
+        return 0;
     }
 }
