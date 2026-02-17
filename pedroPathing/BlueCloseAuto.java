@@ -65,6 +65,18 @@ public static class Paths {
           )
           .setConstantHeadingInterpolation(Math.toRadians(135))
           .build();
+
+     CollectOne = follower.pathBuilder()
+          .addPath(
+            new BezierLine(
+              new Pose(59.855, 84.076),
+            new Pose(19.301, 83.973)
+            )
+          )
+          .setTangentHeadingInterpolation()
+          .build();
+    }
+  }
     }
   }
 
@@ -73,6 +85,10 @@ public static class Paths {
             case 0:
                 follower.followPath(paths.Path1);
                 setPathState(1);
+                break;
+            case 1:
+                follower.followPath(paths.CollectOne);
+                setPathState(2);
                 break;
         }
     }
