@@ -81,11 +81,11 @@ public static class Paths {
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
-                follower.followPath(paths.Path1);
+                follower.followPath(paths.Path1); // defaults max power to 1, holdEnd (defaults to true)
                 setPathState(1);
                 break;
             case 1:
-                follower.followPath(paths.CollectOne);
+                follower.followPath(paths.CollectOne, 0.5, true); // path name, max power for path = 0.5, holdEnd (defaults to true)
                 setPathState(2);
                 break;
         }
