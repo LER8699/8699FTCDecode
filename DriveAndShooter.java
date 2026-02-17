@@ -119,6 +119,11 @@ public class DriveAndShooter extends LinearOpMode {
             }
             lastBPressed = gamepad1.b;
 
+            double xOffset = 0.0;
+            double yOffset = 0.0;
+            double TargetArea = 0.0;
+            boolean foundTag = false;
+
             
             // --- 3. Driving Logic (GP1) ---
 
@@ -154,9 +159,10 @@ public class DriveAndShooter extends LinearOpMode {
             
                 leftFront.setVelocity(((y + x + rx) / denominator) * MAX_SPEED_ON_WHEELS * driverSpeedPower);
                 leftBack.setVelocity(((y - x + rx) / denominator) * MAX_SPEED_ON_WHEELS * driverSpeedPower);
-                rightFront.setVelocity(((y - x - rx) / denominator)* MAX_SPEED_ON_WHEELS * driverSpeedPower);
-                rightBack.setVelocity(((y + x - rx) / denominator)* MAX_SPEED_ON_WHEELS * driverSpeedPower);
+                rightFront.setVelocity(((y - x - rx) / denominator) * MAX_SPEED_ON_WHEELS * driverSpeedPower);
+                rightBack.setVelocity(((y + x - rx) / denominator) * MAX_SPEED_ON_WHEELS * driverSpeedPower);
             }
+
 
             if (gamepad1.left_trigger > 0.5) {
                 driverSpeedPower = 0.3;
@@ -241,14 +247,10 @@ public class DriveAndShooter extends LinearOpMode {
                     id_needed = 24;
                 }
                 
-                double xOffset = 0.0;
-                double yOffset = 0.0;
-    
-                double TargetArea = 0.0;
-                
                 for (LLResultTypes.FiducialResult tag : fiducials) {
                     if (tag.getFiducialId() == id_needed) {
                         // 3. Select values from this specific "row"
+                        foundTag = true;
                         xOffset = tag.getTargetXDegrees();
                         yOffset = tag.getTargetYDegrees();
     
@@ -258,18 +260,7 @@ public class DriveAndShooter extends LinearOpMode {
 
                     }
                 }
-                
-                if (align) {
-                    double turn = GetPefectTurn(xOffset);
-                    leftFront.setVelocity(turn * MAX_SPEED_ON_WHEELS);
-                    leftBack.setVelocity(turn * MAX_SPEED_ON_WHEELS);
-                    rightFront.setVelocity(-turn * MAX_SPEED_ON_WHEELS);
-                    rightBack.setVelocity(-turn * MAX_SPEED_ON_WHEELS);
-                } else {
-                    // Prevent integral windup when not aligning
-                    totalError = 0;
-                    lastError = 0;
-                }
+
 
                 
                 telemetry.addLine("=== FIELD POS ===");
@@ -286,6 +277,34 @@ public class DriveAndShooter extends LinearOpMode {
                 
                 
             }
+
+            if (align) {
+                double yDrive = -gamepad1.left_stick_y;
+                double xDrive = gamepad1.left_stick_x;
+                double rxDrive = gamepad1.right_stick_x;
+            
+                if (foundTag) {
+                    rxDrive = GetPefectTurn(xOffset);
+                } else {
+                    // Tag lost → driver keeps control, PID stays clean
+                    totalError = 0;
+                    lastError = 0;
+                }
+            
+                double denominator = Math.max(
+                        Math.abs(yDrive) + Math.abs(xDrive) + Math.abs(rxDrive), 1.0
+                );
+            
+                leftFront.setVelocity(((yDrive + xDrive + rxDrive) / denominator)
+                        * MAX_SPEED_ON_WHEELS * driverSpeedPower);
+                leftBack.setVelocity(((yDrive - xDrive + rxDrive) / denominator)
+                        * MAX_SPEED_ON_WHEELS * driverSpeedPower);
+                rightFront.setVelocity(((yDrive - xDrive - rxDrive) / denominator)
+                        * MAX_SPEED_ON_WHEELS * driverSpeedPower);
+                rightBack.setVelocity(((yDrive + xDrive - rxDrive) / denominator)
+                        * MAX_SPEED_ON_WHEELS * driverSpeedPower);
+            }
+
 
             // --- 6. Limelight Data Collection ---
             //LLResult result = limelight.getLatestResult();
@@ -321,6 +340,9 @@ public class DriveAndShooter extends LinearOpMode {
             } else {
                 telemetry.addLine("NO TARGET DETECTED");
             }*/
+            // If aligning: keep translation from sticks, but rotation comes from PID when tag is found
+
+
 
             telemetry.addLine("\n=== CONTROLS QUICK-REF ===");
             telemetry.addLine("GP2 A: Toggle Shooter");
