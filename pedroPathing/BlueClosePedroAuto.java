@@ -7,7 +7,6 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.TelemetryManager;
 import com.bylazar.telemetry.PanelsTelemetry;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.paths.PathChain;
@@ -19,25 +18,25 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 
-@Autonomous(name = "BLUE: PedroPathing Far Autonomous", group = "Autonomous")
+@Autonomous(name = "BLUE: Close Autonomous", group = "Autonomous")
 @Configurable
-public class BlueFarPedroAutonomous extends OpMode {
+public class BlueClosePedroAuto extends OpMode {
     private TelemetryManager panelsTelemetry;
     public Follower follower;
     private Timer pathTimer;
     private int pathState;
     private Paths paths;
 
-    // Hardware
+    // Direct Motor Control
     private DcMotorEx leftFront, rightFront, leftBack, rightBack;
     private DcMotor intake, agitator;
     private DcMotorEx shooter;
     private Limelight3A limelight;
 
-    // Constants
+    // Shooter & Alignment Constants
     final static double F = 13.5354;
     final static double P = 300.0;
-    final static double MAX_WHEEL_VELOCITY = 2580.0;
+    final static double MAX_WHEEL_VELOCITY = 2580.0; // Ticks per second
     final int TARGET_TAG_ID = 20; // Blue goal tag
 
     double totalError = 0.0;
@@ -75,12 +74,12 @@ public class BlueFarPedroAutonomous extends OpMode {
         limelight.start();
 
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(53.757, 8.449, Math.toRadians(90)));
+        follower.setStartingPose(new Pose(21.3, 122.2, Math.toRadians(135)));
 
         paths = new Paths(follower);
         pathTimer = new Timer();
 
-        panelsTelemetry.debug("Status", "Initialized Far Auto");
+        panelsTelemetry.debug("Status", "Initialized with Direct Drive Control");
         panelsTelemetry.update(telemetry);
     }
 
@@ -100,17 +99,15 @@ public class BlueFarPedroAutonomous extends OpMode {
     }
 
     private boolean isAligningState() {
-        return (pathState == 1 || pathState == 4) && !follower.isBusy();
+        return (pathState == 1 || pathState == 4 || pathState == 7) && !follower.isBusy();
     }
 
     public void autonomousPathUpdate() {
-        // Active Shooter Control
-        double targetVelocity = getVelocityFromDistance() - 10.0;
+        double targetVelocity = getVelocityFromDistance() - 45.0;
         if (targetVelocity != 0) {
             shooter.setVelocity(targetVelocity);
         }
 
-        // Limelight Data
         LLResult result = limelight.getLatestResult();
         double tx = 0;
         boolean foundTag = false;
@@ -125,11 +122,11 @@ public class BlueFarPedroAutonomous extends OpMode {
 
         switch (pathState) {
             case 0:
+                // Starting movement with adjusted power/hold
                 follower.followPath(paths.ShootInitial, 0.5, true);
                 setPathState(1);
                 break;
-
-            case 1: // Shoot Initial Sequence
+            case 1:
                 if (!follower.isBusy()) {
                     if (alignWithLimelight(tx, foundTag) || pathTimer.getElapsedTimeSeconds() > 2.0) {
                         stopDrive();
@@ -142,34 +139,34 @@ public class BlueFarPedroAutonomous extends OpMode {
                             agitator.setPower(0);
                         }
 
-                        // Exit after 4 pulses (2.8s) + 2.0s align timeout = 4.8s
+                        // Exit after 3 pulses + align buffer
                         if (time > 4.8) {
                             agitator.setPower(0);
                             intake.setPower(1);
-                            follower.followPath(paths.Align1, 0.6, true);
+                            follower.followPath(paths.AlignOne, 0.5, true);
                             setPathState(2);
                         }
                     }
                 }
                 break;
-
             case 2:
                 if (!follower.isBusy()) {
-                    follower.followPath(paths.Collect1, 0.5, true);
+                    follower.followPath(paths.CollectOne, 0.5, true);
                     setPathState(3);
                 }
                 break;
 
             case 3:
                 if (!follower.isBusy()) {
-                    follower.followPath(paths.Shoot2, 0.5, true);
+                    // Holding path at 0.5 power to ensure stability before shooting
+                    follower.followPath(paths.ShootOne, 0.5, true);
                     setPathState(4);
                 }
                 break;
 
-            case 4: // Shoot 2 Sequence
+            case 4:
                 if (!follower.isBusy()) {
-                    if (alignWithLimelight(tx, foundTag) || pathTimer.getElapsedTimeSeconds() > 4.5) {
+                    if (alignWithLimelight(tx, foundTag) || pathTimer.getElapsedTimeSeconds() > 2.0) {
                         stopDrive();
                         intake.setPower(0);
 
@@ -180,9 +177,10 @@ public class BlueFarPedroAutonomous extends OpMode {
                             agitator.setPower(0);
                         }
 
-                        if (time > 7.5) {
+                        if (time > 4.8) {
                             agitator.setPower(0);
-                            follower.followPath(paths.Leave, 1.0, true);
+                            intake.setPower(1);
+                            follower.followPath(paths.AlignTwo, 0.5, true);
                             setPathState(5);
                         }
                     }
@@ -191,7 +189,37 @@ public class BlueFarPedroAutonomous extends OpMode {
 
             case 5:
                 if (!follower.isBusy()) {
-                    setPathState(-1);
+                    follower.followPath(paths.CollectTwo, 0.5, true);
+                    setPathState(6);
+                }
+                break;
+
+            case 6:
+                if (!follower.isBusy()) {
+                    follower.followPath(paths.ShootTwo, 0.5, true);
+                    setPathState(7);
+                }
+                break;
+
+            case 7:
+                if (!follower.isBusy()) {
+                    if (alignWithLimelight(tx, foundTag) || pathTimer.getElapsedTimeSeconds() > 2.5) {
+                        stopDrive();
+                        intake.setPower(0);
+
+                        double time = pathTimer.getElapsedTimeSeconds();
+                        if (time % 0.7 < 0.35) {
+                            agitator.setPower(1);
+                        } else {
+                            agitator.setPower(0);
+                        }
+
+                        if (time > 5.3) {
+                            agitator.setPower(0);
+                            follower.followPath(paths.Leave, 1, true);
+                            setPathState(8);
+                        }
+                    }
                 }
                 break;
         }
@@ -199,7 +227,7 @@ public class BlueFarPedroAutonomous extends OpMode {
 
     public boolean alignWithLimelight(double tx, boolean foundTag) {
         if (foundTag && Math.abs(tx) > 1.0) {
-            double turnPower = GetPerfectTurn(tx);
+            double turnPower = GetPefectTurn(tx);
             double leftV = turnPower * MAX_WHEEL_VELOCITY;
             double rightV = -turnPower * MAX_WHEEL_VELOCITY;
 
@@ -246,10 +274,10 @@ public class BlueFarPedroAutonomous extends OpMode {
         return 1412;
     }
 
-    public double GetPerfectTurn(double xOffset) {
+    public double GetPefectTurn(double xOffset) {
         double kP = 0.045;
         double kI = 0.00001;
-        double kD = 0.0;
+        double kD = 0.;
         double error = xOffset;
         totalError += error;
         double power = (kP * error) + (kI * totalError) + (kD * (error - lastError));
@@ -257,65 +285,48 @@ public class BlueFarPedroAutonomous extends OpMode {
         return power;
     }
 
-
-
-
     public static class Paths {
-        public PathChain ShootInitial;
-        public PathChain Align1;
-        public PathChain Collect1;
-        public PathChain Shoot2;
-        public PathChain Leave;
+        public PathChain ShootInitial, AlignOne, CollectOne, ShootOne, AlignTwo, CollectTwo, ShootTwo, Leave;
 
         public Paths(Follower follower) {
-            ShootInitial = follower.pathBuilder().addPath(
-                            new BezierLine(
-                                    new Pose(53.757, 8.449),
-
-                                    new Pose(65.196, 16.710)
-                            )
-                    ).setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(130))
-
+            ShootInitial = follower.pathBuilder()
+                    .addPath(new BezierLine(new Pose(21.304, 122.293),new Pose(51.000, 92.000)))
+                    .setConstantHeadingInterpolation(Math.toRadians(135))
                     .build();
 
-            Align1 = follower.pathBuilder().addPath(
-                            new BezierLine(
-                                    new Pose(65.196, 16.710),
-
-                                    new Pose(41.710, 35.561)
-                            )
-                    ).setConstantHeadingInterpolation(Math.toRadians(180))
-
+            AlignOne = follower.pathBuilder()
+                    .addPath(new BezierLine(new Pose(51.000, 92.000),new Pose(51.049, 83.293)))
+                    .setConstantHeadingInterpolation(Math.toRadians(180))
                     .build();
 
-            Collect1 = follower.pathBuilder().addPath(
-                            new BezierLine(
-                                    new Pose(41.710, 35.561),
-
-                                    new Pose(14.168, 35.785)
-                            )
-                    ).setTangentHeadingInterpolation()
-
+            CollectOne = follower.pathBuilder()
+                    .addPath(new BezierLine(new Pose(51.049, 83.293),new Pose(19.1, 82.765)))
+                    .setConstantHeadingInterpolation(Math.toRadians(180))
                     .build();
 
-            Shoot2 = follower.pathBuilder().addPath(
-                            new BezierLine(
-                                    new Pose(14.168, 35.785),
-
-                                    new Pose(62.200, 20.000)
-                            )
-                    ).setConstantHeadingInterpolation(Math.toRadians(125))
-
+            ShootOne = follower.pathBuilder()
+                    .addPath(new BezierLine(new Pose(19.1, 82.765),new Pose(51.000, 92.000)))
+                    .setConstantHeadingInterpolation(Math.toRadians(140))
                     .build();
 
-            Leave = follower.pathBuilder().addPath(
-                            new BezierLine(
-                                    new Pose(62.200, 20.000),
+            AlignTwo = follower.pathBuilder()
+                    .addPath(new BezierLine(new Pose(51.000, 92.000),new Pose(51.031, 59.776)))
+                    .setLinearHeadingInterpolation(Math.toRadians(140), Math.toRadians(180))
+                    .build();
 
-                                    new Pose(55.636, 36.421)
-                            )
-                    ).setTangentHeadingInterpolation()
+            CollectTwo = follower.pathBuilder()
+                    .addPath(new BezierLine(new Pose(51.031, 59.776),new Pose(17.537, 59.723)))
+                    .setConstantHeadingInterpolation(Math.toRadians(180))
+                    .build();
 
+            ShootTwo = follower.pathBuilder()
+                    .addPath(new BezierLine(new Pose(17.537, 59.723),new Pose(51.000, 92.000)))
+                    .setConstantHeadingInterpolation(Math.toRadians(140))
+                    .build();
+
+            Leave = follower.pathBuilder()
+                    .addPath(new BezierLine(new Pose(51.000, 92.000),new Pose(37.858, 77.863)))
+                    .setTangentHeadingInterpolation()
                     .build();
         }
     }
